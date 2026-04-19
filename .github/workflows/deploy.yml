@@ -17,14 +17,41 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      - name: Upload to Proisp via rsync
+      - name: Upload to Proisp
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
         run: |
-          sudo apt-get install -y sshpass
-          sshpass -p "$SFTP_PASS" rsync -az --delete \
-            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-            ./dist/ \
-            "$SFTP_USER@$SFTP_HOST:/customers/1/4/4/c3gpmol7q/webroots/r1458810/"
+          pip install paramiko
+          python3 << 'PYEOF'
+          import paramiko, os
+          from pathlib import Path
+
+          host     = os.environ['SFTP_HOST']
+          user     = os.environ['SFTP_USER']
+          password = os.environ['SFTP_PASS']
+          remote   = '/customers/1/4/4/c3gpmol7q/webroots/r1458810'
+
+          client = paramiko.SSHClient()
+          client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+          client.connect(host, username=user, password=password, timeout=30)
+          sftp = client.open_sftp()
+
+          def upload(local, rem):
+              for item in sorted(Path(local).iterdir()):
+                  rp = rem + '/' + item.name
+                  if item.is_dir():
+                      try: sftp.mkdir(rp)
+                      except: pass
+                      upload(item, rp)
+                  else:
+                      print(f'  {item.name}')
+                      sftp.put(str(item), rp)
+
+          print(f'Uploading dist/ -> {remote}')
+          upload('dist', remote)
+          sftp.close()
+          client.close()
+          print('Done.')
+          PYEOF
