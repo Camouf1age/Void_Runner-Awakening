@@ -800,7 +800,7 @@ const CSS = `
   .intro-text{font-size:.76rem;line-height:2.2;color:var(--text);max-width:440px;margin-bottom:2.5rem;white-space:pre-line;}
   @keyframes glow{0%,100%{text-shadow:0 0 25px rgba(0,229,212,.3)}50%{text-shadow:0 0 55px rgba(0,229,212,.65)}}
 
-  .game{flex:1;display:grid;grid-template-columns:1fr 210px;grid-template-rows:48px auto 1fr 54px;max-height:100vh;overflow:hidden;}
+  .game{flex:1;display:grid;grid-template-columns:1fr 210px;grid-template-rows:48px auto minmax(0,1fr) auto;height:100vh;overflow:hidden;}
   .g-header{grid-column:1/-1;background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1rem;gap:1rem;}
   .g-logo{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem;color:var(--cyan);letter-spacing:.2em;flex-shrink:0;}
   .g-stats{display:flex;gap:1.2rem;align-items:center;flex:1;justify-content:center;}
@@ -813,7 +813,7 @@ const CSS = `
 
   .scene-wrap{grid-column:1;grid-row:2;background:#000;border-bottom:1px solid var(--border);overflow:hidden;position:relative;}
 
-  .elog{grid-column:1;grid-row:3;background:var(--bg);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem;}
+  .elog{grid-column:1;grid-row:3;background:var(--bg);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem;min-height:0;}
   .ev{font-size:.68rem;line-height:1.8;}
   .ev-action{color:var(--cyan);}
   .ev-story{color:var(--text);border-left:2px solid var(--border);padding-left:.7rem;}
@@ -840,7 +840,7 @@ const CSS = `
   .xp-bar{height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin-top:.25rem;}
   .xp-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s ease;}
 
-  .actions{grid-column:1/-1;background:var(--s1);border-top:1px solid var(--border);padding:.55rem .85rem;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;}
+  .actions{grid-column:1/-1;background:var(--s1);border-top:1px solid var(--border);padding:.55rem .85rem;display:flex;flex-wrap:nowrap;gap:.35rem;align-items:center;overflow-x:auto;max-height:54px;}
   .ab{font-family:'Space Mono',monospace;font-size:.6rem;padding:.4rem .8rem;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;transition:all .15s;letter-spacing:.05em;}
   .ab:hover{border-color:var(--cyan);color:var(--cyan);background:var(--cdim);}
   .ab.pri{border-color:rgba(0,229,212,.4);color:var(--cyan);}
