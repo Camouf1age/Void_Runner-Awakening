@@ -18,12 +18,15 @@ jobs:
       - run: npm run build
 
       - name: Upload to Proisp via SFTP
+        env:
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_PASS: ${{ secrets.SFTP_PASS }}
         run: |
           sudo apt-get install -y lftp
-          lftp -e "
+          lftp -u "$SFTP_USER,$SFTP_PASS" -e "
             set sftp:auto-confirm yes;
-            set net:timeout 20;
-            open sftp://${{ secrets.SFTP_USER }}:${{ secrets.SFTP_PASS }}@${{ secrets.SFTP_HOST }};
+            set net:timeout 30;
             mirror -R --delete --no-perms ./dist/ /customers/1/4/4/c3gpmol7q/webroots/r1458810/;
             bye
-          "
+          " sftp://$SFTP_HOST
