@@ -35,7 +35,8 @@ jobs:
 
           client = paramiko.SSHClient()
           client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-          client.connect(host, username=user, password=password, timeout=30)
+          client.connect(host, username=user, password=password, timeout=30,
+                         look_for_keys=False, allow_agent=False)
           sftp = client.open_sftp()
 
           def upload(local, rem):
