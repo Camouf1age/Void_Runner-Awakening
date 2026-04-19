@@ -17,16 +17,14 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      - name: Upload to Proisp via SFTP
+      - name: Upload to Proisp via rsync
         env:
           SFTP_HOST: ${{ secrets.SFTP_HOST }}
           SFTP_USER: ${{ secrets.SFTP_USER }}
           SFTP_PASS: ${{ secrets.SFTP_PASS }}
         run: |
-          sudo apt-get install -y lftp
-          lftp -u "$SFTP_USER,$SFTP_PASS" -e "
-            set sftp:auto-confirm yes;
-            set net:timeout 30;
-            mirror -R --delete --no-perms ./dist/ /customers/1/4/4/c3gpmol7q/webroots/r1458810/;
-            bye
-          " sftp://$SFTP_HOST
+          sudo apt-get install -y sshpass
+          sshpass -p "$SFTP_PASS" rsync -az --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            ./dist/ \
+            "$SFTP_USER@$SFTP_HOST:/customers/1/4/4/c3gpmol7q/webroots/r1458810/"
