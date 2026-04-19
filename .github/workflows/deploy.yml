@@ -31,7 +31,7 @@ jobs:
           host     = os.environ['SFTP_HOST']
           user     = os.environ['SFTP_USER']
           password = os.environ['SFTP_PASS']
-          remote   = '/customers/1/4/4/c3gpmol7q/webroots/r1458810'
+          remote   = '/customers/1/4/4/c3gpmol7q/webroots/r1440217/games'
 
           client = paramiko.SSHClient()
           client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
