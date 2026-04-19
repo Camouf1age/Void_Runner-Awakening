@@ -216,210 +216,166 @@ function backWall(ctx, colTop, colBot) {
 function sideExit(ctx, side, glowCol) {
   const x = side === 'left' ? 0 : SW - 62;
   const ew = 62, top = 120, ht = 235;
-  rect(ctx, x, top, ew, ht, 'rgba(0,0,0,0.88)');
+  rect(ctx, x, top, ew, ht, '#050810');
   const lg = ctx.createLinearGradient(
     side === 'left' ? x + ew : x, 0,
     side === 'left' ? x : x + ew, 0
   );
   lg.addColorStop(0, glowCol); lg.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = lg; ctx.fillRect(x, top, ew, ht);
-  ctx.strokeStyle = glowCol; ctx.lineWidth = 2; ctx.strokeRect(x, top, ew, ht);
-  // arrow
+  ctx.strokeStyle = glowCol; ctx.lineWidth = 3; ctx.strokeRect(x, top, ew, ht);
   const ax = side === 'left' ? x + 26 : x + 36, ay = top + ht / 2;
   ctx.fillStyle = glowCol; ctx.beginPath();
-  if (side === 'left') { ctx.moveTo(ax + 10, ay - 9); ctx.lineTo(ax - 6, ay); ctx.lineTo(ax + 10, ay + 9); }
-  else                 { ctx.moveTo(ax - 10, ay - 9); ctx.lineTo(ax + 6, ay); ctx.lineTo(ax - 10, ay + 9); }
+  if (side === 'left') { ctx.moveTo(ax + 12, ay - 10); ctx.lineTo(ax - 8, ay); ctx.lineTo(ax + 12, ay + 10); }
+  else                 { ctx.moveTo(ax - 12, ay - 10); ctx.lineTo(ax + 8, ay); ctx.lineTo(ax - 12, ay + 10); }
   ctx.fill();
 }
 
-function drawCryoBay(ctx, _f, _d, collected) {
-  // ── background
-  backWall(ctx, '#2a0404', '#0f0101');
-  perspFloor(ctx, '#1a0303', '#100101', 'rgba(120,0,0,0.12)');
+function drawCryoBay(ctx, _f, _d, _collected) {
+  // Back wall — dark red-tinted metal
+  backWall(ctx, '#3a1010', '#1e0808');
+  // Floor — dark, slightly red
+  perspFloor(ctx, '#2a0a0a', '#180505', 'rgba(220,30,0,0.22)');
 
-  // ceiling strip + glow strips
-  rect(ctx, 0, 0, SW, 22, '#1a0505');
+  // Ceiling beam strip
+  rect(ctx, 0, 0, SW, 26, '#2a1010');
+  // Emergency light strips on ceiling — bright red
   for (let i = 0; i < 5; i++) {
-    const lx = 40 + i * 118;
-    rect(ctx, lx, 4, 38, 8, '#660000');
-    glow(ctx, lx + 19, 18, 80, 'rgba(220,30,0,0.18)');
+    const lx = 34 + i * 118;
+    rect(ctx, lx, 4, 44, 10, '#cc0000');
+    glow(ctx, lx + 22, 20, 100, 'rgba(255,30,0,0.40)');
   }
 
-  // back-wall side paneling
-  rect(ctx, 0, 22, 62, HY - 22, '#180505');
-  rect(ctx, SW - 62, 22, 62, HY - 22, '#180505');
-
-  // cryo pod bank — back wall, perspective rows
-  const podRows = [
-    { count:10, y0:38, podW:42, podH:72, startX:70, gap:52, scale:0.55 },
-    { count: 7, y0:88, podW:54, podH:65, startX:85, gap:68, scale:0.75 },
-  ];
-  for (const row of podRows) {
-    for (let i = 0; i < row.count; i++) {
-      const px = row.startX + i * row.gap;
-      if (px + row.podW > SW - 70) continue;
-      rect(ctx, px, row.y0, row.podW, row.podH, '#1c2e40');
-      rect(ctx, px + 3, row.y0 + 4, row.podW - 6, row.podH - 8, '#040a12');
-      ctx.fillStyle = 'rgba(20,60,140,0.12)'; ctx.fillRect(px + 3, row.y0 + 4, row.podW - 6, row.podH - 8);
-      ctx.strokeStyle = '#1e3550'; ctx.lineWidth = 1; ctx.strokeRect(px, row.y0, row.podW, row.podH);
-      // status light — all dead red
-      rect(ctx, px + Math.round(row.podW * 0.38), row.y0 + 5, Math.round(row.podW * 0.24), 3, '#5a0000');
-      // ice condensation hint
-      ctx.fillStyle = 'rgba(80,120,200,0.05)';
-      ctx.fillRect(px + 4, row.y0 + row.podH - 16, row.podW - 8, 12);
-    }
+  // Wall panelling left/right
+  rect(ctx, 0, 26, 62, HY - 26, '#251010');
+  rect(ctx, SW - 62, 26, 62, HY - 26, '#251010');
+  // Structural ribs on back wall
+  ctx.strokeStyle = '#3a1818'; ctx.lineWidth = 3;
+  for (let i = 1; i < 6; i++) {
+    const rx = 62 + i * (SW - 124) / 6;
+    ctx.beginPath(); ctx.moveTo(rx, 26); ctx.lineTo(rx, HY); ctx.stroke();
   }
 
-  // Player's open pod — center-left, on floor (pod they just exited)
-  rect(ctx, 180, HY + 30, 70, 120, '#1c2e40');
-  rect(ctx, 184, HY + 34, 62, 110, '#040a12');
-  ctx.strokeStyle = '#2a4060'; ctx.lineWidth = 2; ctx.strokeRect(180, HY + 30, 70, 120);
-  // open hatch indication
-  rect(ctx, 180, HY + 30, 70, 18, '#263848');
-  ctx.fillStyle = 'rgba(30,80,180,0.08)'; ctx.fillRect(184, HY + 48, 62, 96);
-  // cryo residue/frost
-  ctx.strokeStyle = 'rgba(120,180,255,0.25)'; ctx.lineWidth = 1;
-  for (let i = 0; i < 4; i++) {
-    ctx.beginPath(); ctx.moveTo(185 + i * 15, HY + 48); ctx.lineTo(190 + i * 12, HY + 80); ctx.stroke();
+  // Cryo pod bank — back wall, far row (small)
+  for (let i = 0; i < 9; i++) {
+    const px = 75 + i * 56;
+    if (px + 38 > SW - 65) continue;
+    rect(ctx, px, 32, 38, 60, '#2e4a60');        // pod shell
+    rect(ctx, px + 3, 36, 32, 50, '#0a1828');    // pod interior
+    ctx.strokeStyle = '#4a6880'; ctx.lineWidth = 1; ctx.strokeRect(px, 32, 38, 60);
+    // dead status light — dim red
+    rect(ctx, px + 14, 37, 10, 4, '#880000');
+    // frosted glass tint
+    ctx.fillStyle = 'rgba(60,100,180,0.10)';
+    ctx.fillRect(px + 3, 36, 32, 50);
+  }
+  // Near row (larger)
+  for (let i = 0; i < 7; i++) {
+    const px = 88 + i * 70;
+    if (px + 48 > SW - 65) continue;
+    rect(ctx, px, 88, 48, 65, '#2e4a60');
+    rect(ctx, px + 4, 93, 40, 54, '#0a1828');
+    ctx.strokeStyle = '#4a6880'; ctx.lineWidth = 1; ctx.strokeRect(px, 88, 48, 65);
+    rect(ctx, px + 18, 94, 12, 5, '#880000');
+    ctx.fillStyle = 'rgba(60,100,180,0.10)'; ctx.fillRect(px + 4, 93, 40, 54);
   }
 
-  // Atmospheric fog near floor
-  const fog = ctx.createLinearGradient(0, HY + 40, 0, HY + 100);
-  fog.addColorStop(0, 'rgba(180,30,0,0.06)'); fog.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = fog; ctx.fillRect(0, HY, SW, 120);
-
-  // Emergency lights pooling on floor
-  glow(ctx, 160, SH - 30, 120, 'rgba(180,20,0,0.10)');
-  glow(ctx, 480, SH - 40, 100, 'rgba(180,20,0,0.08)');
-
-  // Right-side exit doorway
-  sideExit(ctx, 'right', 'rgba(60,100,220,0.5)');
-
-  // Ceiling
-  rect(ctx, 0, 0, SW, 14, '#220808');
-
-  // Back wall
-  rect(ctx, 0, 14, SW, 101, '#110404');
-
-  // Red glow strips on ceiling
-  for (let i = 0; i < 4; i++) {
-    const lx = 25 + i * 82;
-    rect(ctx, lx, 8, 22, 5, '#5a0000');
-    const g = ctx.createRadialGradient(lx+11, 13, 1, lx+11, 13, 55);
-    g.addColorStop(0, 'rgba(200,0,0,0.18)'); g.addColorStop(1, 'rgba(200,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(lx-44, 0, 110, 90);
+  // Player's open cryo pod — front floor, center-left
+  rect(ctx, 178, HY + 28, 76, 130, '#3a5470');   // shell
+  rect(ctx, 183, HY + 33, 66, 118, '#0c1e30');   // interior
+  ctx.strokeStyle = '#5a80a8'; ctx.lineWidth = 2; ctx.strokeRect(178, HY + 28, 76, 130);
+  rect(ctx, 178, HY + 28, 76, 20, '#3a5878');     // open hatch header
+  // cryo frost trails
+  ctx.strokeStyle = 'rgba(140,200,255,0.55)'; ctx.lineWidth = 1;
+  for (let i = 0; i < 5; i++) {
+    ctx.beginPath();
+    ctx.moveTo(186 + i * 12, HY + 50);
+    ctx.lineTo(190 + i * 10, HY + 90);
+    ctx.stroke();
   }
+  // cryo mist pool on floor
+  glow(ctx, 216, HY + 165, 70, 'rgba(120,180,255,0.25)');
 
-  // Cryo pods — two rows
-  for (let row = 0; row < 2; row++) {
-    const scale = row === 0 ? 0.65 : 1;
-    const podW = Math.round(26 * scale), podH = Math.round(50 * scale);
-    const baseY = row === 0 ? (115 - Math.round(52*scale) - 5) : (115 - podH - 2);
-    const count = row === 0 ? 8 : 6;
-    const startX = row === 0 ? 8 : 20;
-    const spacing = row === 0 ? 38 : 50;
-    for (let i = 0; i < count; i++) {
-      const px = startX + i * spacing;
-      rect(ctx, px, baseY, podW, podH, '#162030');
-      rect(ctx, px+2, baseY+3, podW-4, podH-6, '#060c14');
-      ctx.fillStyle = 'rgba(50,90,160,0.08)'; ctx.fillRect(px+2, baseY+3, podW-4, podH-6);
-      ctx.strokeStyle = '#1e3050'; ctx.lineWidth = 1; ctx.strokeRect(px, baseY, podW, podH);
-      // dead indicator
-      rect(ctx, px + Math.round(podW*0.35), baseY + 4, Math.round(podW*0.3), 2, '#1a0808');
-    }
-  }
+  // Emergency glow pooling on floor
+  glow(ctx, 160, SH - 20, 150, 'rgba(255,20,0,0.20)');
+  glow(ctx, 490, SH - 30, 130, 'rgba(255,20,0,0.16)');
 
+  sideExit(ctx, 'right', 'rgba(80,120,255,0.75)');
 }
 
-function drawCorridorA(ctx, flags, defeated, collected, doneActions) {
-  // ── background
-  backWall(ctx, '#08101e', '#020408');
-  perspFloor(ctx, '#080c14', '#04060c', 'rgba(30,50,120,0.12)');
+function drawCorridorA(ctx, _flags, defeated, _collected, doneActions) {
+  backWall(ctx, '#1a2840', '#0c1828');
+  perspFloor(ctx, '#141e30', '#0a1020', 'rgba(50,90,220,0.28)');
 
-  // ceiling strip
-  rect(ctx, 0, 0, SW, 24, '#0a0d1c');
-
-  // ceiling conduit runs
-  ctx.strokeStyle = '#0e1428'; ctx.lineWidth = 4;
+  // Ceiling beam
+  rect(ctx, 0, 0, SW, 26, '#1c2640');
+  // Ceiling conduit pipes
+  ctx.strokeStyle = '#3a4c68'; ctx.lineWidth = 5;
   for (let i = 0; i < 4; i++) {
     const cx2 = 100 + i * 140;
-    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(cx2, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(cx2, 26); ctx.stroke();
   }
-
-  // ceiling emergency light panels
+  // Emergency blue light panels
   for (let i = 0; i < 4; i++) {
     const lx = 60 + i * 150;
-    rect(ctx, lx, 4, 70, 10, '#16203a');
-    glow(ctx, lx + 35, 14, 90, 'rgba(60,90,220,0.14)');
+    rect(ctx, lx, 4, 70, 12, '#1e3464');
+    glow(ctx, lx + 35, 16, 110, 'rgba(70,110,255,0.35)');
   }
-
-  // Hanging cables from ceiling (damaged)
-  ctx.lineWidth = 2;
+  // Hanging cables from ceiling
   for (let i = 0; i < 10; i++) {
     const cx2 = 40 + i * 60;
-    const sag = 18 + (i % 3) * 12;
-    ctx.strokeStyle = (i % 4 === 0) ? '#cc4400' : '#1a2438';
+    const sag = 20 + (i % 3) * 14;
+    ctx.strokeStyle = (i % 4 === 0) ? '#dd6600' : '#3a4c64';
+    ctx.lineWidth = (i % 4 === 0) ? 3 : 2;
     ctx.beginPath();
-    ctx.moveTo(cx2, 24);
-    ctx.quadraticCurveTo(cx2 + 8, 24 + sag, cx2 + 3, 24 + sag + 18);
+    ctx.moveTo(cx2, 26);
+    ctx.quadraticCurveTo(cx2 + 8, 26 + sag, cx2 + 3, 26 + sag + 20);
     ctx.stroke();
-    if (i % 4 === 0) { // sparking cable
-      glow(ctx, cx2 + 3, 24 + sag + 18, 20, 'rgba(255,120,0,0.18)');
-    }
+    if (i % 4 === 0) glow(ctx, cx2 + 3, 26 + sag + 20, 28, 'rgba(255,140,0,0.45)');
   }
 
-  // Back wall — centre hatch to bridge (x:262,y:168,w:116,h:105 → center receding hatch)
-  rect(ctx, 262, 60, 116, 95, '#06090f');
-  rect(ctx, 268, 64, 104, 85, '#020408');
-  ctx.strokeStyle = '#1a2848'; ctx.lineWidth = 2; ctx.strokeRect(262, 60, 116, 95);
-  // hatch panel lines
-  ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(320, 64); ctx.lineTo(320, 149); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(268, 107); ctx.lineTo(372, 107); ctx.stroke();
-  // hatch indicator light
-  const blinkH = Math.floor(Date.now() / 600) % 2;
-  rect(ctx, 306, 66, 28, 5, blinkH ? '#002288' : '#00aaff');
-  // label
-  ctx.font = 'bold 9px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#1e3060'; ctx.fillText('BRIDGE — LV1', 320, 154);
-
-  // Wall ribs — perspective lines on ceiling/walls
-  ctx.strokeStyle = '#0e1428'; ctx.lineWidth = 3;
+  // Perspective wall ribs
+  ctx.strokeStyle = '#263650'; ctx.lineWidth = 3;
   for (let i = 0; i < 7; i++) {
-    const t = i / 6;
-    const bx = t * SW;
-    ctx.beginPath(); ctx.moveTo(VX, HY); ctx.lineTo(bx, 0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(VX, HY); ctx.lineTo(i * SW / 6, 0); ctx.stroke();
   }
 
-  // Bulkhead panels — left/right areas of back wall
+  // Bulkhead wall panels left & right
   for (let side = 0; side < 2; side++) {
-    const bx = side === 0 ? 62 : 450;
-    const bw = 200;
+    const bx = side === 0 ? 62 : 450, bw = 200;
+    rect(ctx, bx, 26, bw, HY - 26, '#162030');
     for (let j = 0; j < 3; j++) {
-      const py = 28 + j * 38;
-      ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1;
-      ctx.strokeRect(bx + 10, py, bw - 20, 32);
-      rect(ctx, bx + 10, py, bw - 20, 4, '#0c1428');
+      ctx.strokeStyle = '#2a3c54'; ctx.lineWidth = 1;
+      ctx.strokeRect(bx + 8, 30 + j * 40, bw - 16, 34);
+      rect(ctx, bx + 8, 30 + j * 40, bw - 16, 5, '#1e2e48');
     }
   }
 
-  // Technician body on floor (near hotspot x:188, y:355)
+  // Bridge hatch — back-center (hotspot at x:262, y:168, w:116, h:105)
+  rect(ctx, 258, 56, 124, 99, '#101828');
+  rect(ctx, 264, 62, 112, 87, '#08101e');
+  ctx.strokeStyle = '#3060cc'; ctx.lineWidth = 3; ctx.strokeRect(258, 56, 124, 99);
+  glow(ctx, 320, 105, 60, 'rgba(60,100,220,0.22)');
+  ctx.strokeStyle = '#1a3060'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(320, 62); ctx.lineTo(320, 149); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(264, 105); ctx.lineTo(376, 105); ctx.stroke();
+  const blinkH = Math.floor(Date.now() / 600) % 2;
+  rect(ctx, 304, 64, 32, 7, blinkH ? '#0033cc' : '#44aaff');
+  if (blinkH) glow(ctx, 320, 67, 20, 'rgba(80,160,255,0.5)');
+  ctx.font = 'bold 10px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#4488cc'; ctx.fillText('BRIDGE ACCESS', 320, HY - 2);
+
+  // Technician body on floor (hotspot x:188, y:355)
   if (!doneActions?.search_body) {
-    // body
-    rect(ctx, 148, 342, 80, 22, '#1a2438');
-    // head
-    rect(ctx, 140, 335, 22, 18, '#c8a070');
-    // uniform detail
-    ctx.strokeStyle = '#263850'; ctx.lineWidth = 1; ctx.strokeRect(148, 342, 80, 22);
-    // tool belt items scattered
-    rect(ctx, 200, 358, 18, 6, '#2a3c50');
-    rect(ctx, 220, 360, 10, 4, '#1a2a40');
-    // security pass visible
-    rect(ctx, 162, 344, 12, 16, '#3a5080');
-    ctx.strokeStyle = '#6080b0'; ctx.lineWidth = 1; ctx.strokeRect(162, 344, 12, 16);
-    // pool of dark liquid
-    ctx.fillStyle = 'rgba(10,15,30,0.5)';
-    ctx.beginPath(); ctx.ellipse(175, 370, 44, 12, 0, 0, Math.PI * 2); ctx.fill();
+    rect(ctx, 148, 340, 84, 26, '#243450');   // body/uniform
+    rect(ctx, 138, 332, 24, 20, '#e0b880');   // head/skin
+    ctx.strokeStyle = '#3a5070'; ctx.lineWidth = 1; ctx.strokeRect(148, 340, 84, 26);
+    rect(ctx, 202, 356, 20, 8, '#3a5068');   // dropped tool
+    rect(ctx, 224, 358, 12, 6, '#2a3c58');
+    rect(ctx, 160, 342, 14, 18, '#4a70b0');  // security pass (visible blue)
+    ctx.strokeStyle = '#7aa0e0'; ctx.lineWidth = 1; ctx.strokeRect(160, 342, 14, 18);
+    ctx.fillStyle = 'rgba(8,14,26,0.6)';
+    ctx.beginPath(); ctx.ellipse(178, 372, 48, 13, 0, 0, Math.PI * 2); ctx.fill();
   }
 
   // Damaged drone (near hotspot x:492, y:272)
@@ -444,407 +400,366 @@ function drawCorridorA(ctx, flags, defeated, collected, doneActions) {
     ctx.beginPath(); ctx.ellipse(dx + 26, dy + 42, 20, 5, 0, 0, Math.PI * 2); ctx.stroke();
   }
 
-  // Scrap metal item (at hotspot x:338, y:348)
-  // (drawn by hotspot overlay, just add subtle floor marking)
-  ctx.fillStyle = 'rgba(60,80,100,0.15)';
-  ctx.beginPath(); ctx.ellipse(338, 358, 28, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // Scrap metal — floor shadow
+  ctx.fillStyle = 'rgba(80,110,140,0.35)';
+  ctx.beginPath(); ctx.ellipse(338, 358, 30, 9, 0, 0, Math.PI * 2); ctx.fill();
 
-  // Atmospheric effects
-  glow(ctx, 160, SH - 20, 150, 'rgba(30,50,180,0.08)');
-  glow(ctx, 480, SH - 20, 130, 'rgba(30,50,180,0.06)');
+  // Floor glow from lights
+  glow(ctx, 160, SH - 20, 180, 'rgba(50,80,220,0.18)');
+  glow(ctx, 490, SH - 20, 160, 'rgba(50,80,220,0.14)');
 
-  // Side exits
-  sideExit(ctx, 'left',  'rgba(50,80,200,0.5)');
-  sideExit(ctx, 'right', 'rgba(50,80,200,0.5)');
+  sideExit(ctx, 'left',  'rgba(70,110,255,0.75)');
+  sideExit(ctx, 'right', 'rgba(70,110,255,0.75)');
 }
 
-function drawMedBay(ctx, flags, defeated, collected, doneActions) {
-  // ── background
-  backWall(ctx, '#031208', '#010804');
-  perspFloor(ctx, '#060e05', '#030803', 'rgba(0,80,30,0.10)');
+function drawMedBay(ctx, _flags, _defeated, _collected, doneActions) {
+  backWall(ctx, '#1a3020', '#0c1c10');
+  perspFloor(ctx, '#101808', '#0a1005', 'rgba(0,160,60,0.25)');
 
-  // ceiling — clinical white-green light panels
-  rect(ctx, 0, 0, SW, 24, '#0a1c10');
+  // Ceiling — bright clinical light panels
+  rect(ctx, 0, 0, SW, 26, '#1a3822');
   for (let i = 0; i < 4; i++) {
     const lx = 50 + i * 148;
-    rect(ctx, lx, 3, 90, 12, '#1a3820');
-    glow(ctx, lx + 45, 15, 110, 'rgba(0,200,80,0.14)');
+    rect(ctx, lx, 3, 90, 14, '#306840');
+    glow(ctx, lx + 45, 16, 130, 'rgba(0,220,90,0.38)');
   }
 
-  // back wall — sterile white panelling
-  rect(ctx, 62, 24, SW - 124, HY - 24, '#050f08');
-  // wall grid / panels
-  ctx.strokeStyle = '#0c2015'; ctx.lineWidth = 1;
+  // Back wall — tiled panels
+  rect(ctx, 62, 26, SW - 124, HY - 26, '#122018');
+  ctx.strokeStyle = '#1e3828'; ctx.lineWidth = 1;
   for (let x2 = 100; x2 < SW - 100; x2 += 90) {
-    ctx.beginPath(); ctx.moveTo(x2, 24); ctx.lineTo(x2, HY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2, 26); ctx.lineTo(x2, HY); ctx.stroke();
   }
-  for (let y2 = 45; y2 < HY; y2 += 35) {
+  for (let y2 = 50; y2 < HY; y2 += 35) {
     ctx.beginPath(); ctx.moveTo(62, y2); ctx.lineTo(SW - 62, y2); ctx.stroke();
   }
 
-  // Patient chart screen (near hotspot x:428, y:228 → on back wall area)
-  rect(ctx, 370, 38, 100, 72, '#080f0a');
-  rect(ctx, 374, 42, 92, 64, '#020a05');
-  ctx.strokeStyle = '#00c060'; ctx.lineWidth = 2; ctx.strokeRect(374, 42, 92, 64);
-  glow(ctx, 420, 74, 55, 'rgba(0,180,60,0.12)');
-  // text lines on screen
-  ctx.fillStyle = '#00b050';
+  // Patient chart screen (hotspot x:428, y:228 — on back wall)
+  rect(ctx, 368, 34, 108, 80, '#0e1c12');
+  rect(ctx, 372, 38, 100, 72, '#060e08');
+  ctx.strokeStyle = '#00dd66'; ctx.lineWidth = 2; ctx.strokeRect(372, 38, 100, 72);
+  glow(ctx, 422, 74, 65, 'rgba(0,200,70,0.30)');
+  // text lines
+  ctx.fillStyle = '#00cc55';
   for (let i = 0; i < 6; i++) {
-    const lw = [56, 72, 44, 80, 50, 64][i];
-    ctx.fillRect(378, 47 + i * 9, lw, 3);
+    const lw = [60, 76, 48, 84, 54, 68][i];
+    ctx.fillRect(376, 43 + i * 10, lw, 3);
   }
-  // YOUR NAME line highlighted red
-  rect(ctx, 378, 47, 56, 3, '#ff4400');
-  glow(ctx, 406, 50, 22, 'rgba(255,80,0,0.2)');
-  // screen label
-  ctx.font = '8px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillStyle = '#0a2010'; ctx.fillText('PATIENT CHART', 420, 108);
+  // Name line — bright red alert
+  rect(ctx, 376, 43, 60, 4, '#ff3300');
+  glow(ctx, 406, 45, 28, 'rgba(255,60,0,0.45)');
+  ctx.font = 'bold 9px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillStyle = '#00aa44'; ctx.fillText('PATIENT CHART', 422, 112);
 
-  // Medical supply cabinet (left wall area)
-  rect(ctx, 80, 35, 80, 110, '#050e08');
-  ctx.strokeStyle = '#0c2015'; ctx.lineWidth = 1; ctx.strokeRect(80, 35, 80, 110);
+  // Supply cabinet — left wall
+  rect(ctx, 76, 30, 88, 118, '#0e2016');
+  ctx.strokeStyle = '#204030'; ctx.lineWidth = 2; ctx.strokeRect(76, 30, 88, 118);
   for (let shelf = 0; shelf < 3; shelf++) {
-    rect(ctx, 83, 68 + shelf * 28, 74, 3, '#0c2015');
-    // items on shelf
+    rect(ctx, 79, 70 + shelf * 30, 82, 4, '#204030');
     for (let item = 0; item < 3; item++) {
-      rect(ctx, 86 + item * 22, 54 + shelf * 28, 14, 12, '#081808');
-      ctx.strokeStyle = '#1a4025'; ctx.lineWidth = 1; ctx.strokeRect(86 + item * 22, 54 + shelf * 28, 14, 12);
+      rect(ctx, 82 + item * 24, 50 + shelf * 30, 16, 18, '#102818');
+      ctx.strokeStyle = '#2a5038'; ctx.lineWidth = 1; ctx.strokeRect(82 + item * 24, 50 + shelf * 30, 16, 18);
+      // medical cross on item
+      ctx.fillStyle = '#00aa44';
+      ctx.fillRect(89 + item * 24, 52 + shelf * 30, 2, 14);
+      ctx.fillRect(82 + item * 24 + 4, 58 + shelf * 30, 8, 2);
     }
   }
 
-  // Medical examination tables — 3, in perspective (receding toward back wall)
+  // Examination tables in perspective
   const tableSpecs = [
-    { x: 120, y: HY + 55, w: 100, h: 40, ht: 18 },  // near-left
-    { x: 270, y: HY + 40, w: 88,  h: 36, ht: 14 },  // mid-center
-    { x: 460, y: HY + 45, w: 90,  h: 36, ht: 15 },  // mid-right
+    { x: 110, y: HY + 50, w: 108, h: 44, legs: 20 },
+    { x: 266, y: HY + 36, w: 94,  h: 38, legs: 16 },
+    { x: 458, y: HY + 42, w: 96,  h: 40, legs: 17 },
   ];
   for (const t of tableSpecs) {
-    // legs
-    ctx.fillStyle = '#0a1c10';
-    ctx.fillRect(t.x + 6, t.y + t.h, 8, t.ht);
-    ctx.fillRect(t.x + t.w - 14, t.y + t.h, 8, t.ht);
-    // table surface
-    rect(ctx, t.x, t.y, t.w, t.h, '#0c2018');
-    rect(ctx, t.x, t.y, t.w, 6, '#182c20'); // top edge
-    ctx.strokeStyle = '#1e4030'; ctx.lineWidth = 1; ctx.strokeRect(t.x, t.y, t.w, t.h);
-    // sheet/patient indicator
-    ctx.fillStyle = 'rgba(200,220,210,0.04)'; ctx.fillRect(t.x + 4, t.y + 6, t.w - 8, t.h - 10);
+    ctx.fillStyle = '#182c20';
+    ctx.fillRect(t.x + 8, t.y + t.h, 10, t.legs);
+    ctx.fillRect(t.x + t.w - 18, t.y + t.h, 10, t.legs);
+    rect(ctx, t.x, t.y, t.w, t.h, '#1a3428');
+    rect(ctx, t.x, t.y, t.w, 8, '#264c38');  // bright top edge
+    ctx.strokeStyle = '#2e5840'; ctx.lineWidth = 2; ctx.strokeRect(t.x, t.y, t.w, t.h);
+    ctx.fillStyle = 'rgba(220,240,230,0.06)'; ctx.fillRect(t.x + 4, t.y + 8, t.w - 8, t.h - 12);
   }
 
-  // Surgical tray on floor near left table
-  rect(ctx, 112, SH - 80, 40, 20, '#0c1c14');
-  ctx.strokeStyle = '#1a3020'; ctx.lineWidth = 1; ctx.strokeRect(112, SH - 80, 40, 20);
-  for (let i = 0; i < 4; i++) rect(ctx, 115 + i * 9, SH - 77, 6, 14, '#0a1810');
-
-  // Med stim / ration pack / data chip items — floor shadows (hotspots at y:342)
-  const itemGlows = [
-    { x: 162, col: 'rgba(0,200,60,0.12)' },
-    { x: 332, col: 'rgba(80,180,255,0.10)' },
-    { x: 502, col: 'rgba(200,140,0,0.10)' },
-  ];
-  for (const ig of itemGlows) {
-    ctx.fillStyle = ig.col;
-    ctx.beginPath(); ctx.ellipse(ig.x, 352, 26, 8, 0, 0, Math.PI * 2); ctx.fill();
+  // Surgical tray on floor
+  rect(ctx, 108, SH - 82, 44, 22, '#182e20');
+  ctx.strokeStyle = '#2a4c34'; ctx.lineWidth = 1; ctx.strokeRect(108, SH - 82, 44, 22);
+  for (let i = 0; i < 4; i++) {
+    rect(ctx, 111 + i * 10, SH - 79, 7, 16, '#0e1e14');
+    ctx.strokeStyle = '#204030'; ctx.lineWidth = 1; ctx.strokeRect(111 + i * 10, SH - 79, 7, 16);
   }
 
-  // Atmospheric lighting
-  glow(ctx, 320, HY + 80, 200, 'rgba(0,120,40,0.06)');
+  // Item floor glows
+  for (const [x2, col] of [[162,'rgba(0,220,70,0.28)'],[332,'rgba(100,200,255,0.22)'],[502,'rgba(220,160,0,0.22)']]) {
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.ellipse(x2, 352, 28, 9, 0, 0, Math.PI * 2); ctx.fill();
+  }
 
-  sideExit(ctx, 'left',  'rgba(40,180,80,0.45)');
-  sideExit(ctx, 'right', 'rgba(40,180,80,0.45)');
+  glow(ctx, 320, HY + 100, 220, 'rgba(0,140,50,0.12)');
+  sideExit(ctx, 'left',  'rgba(0,220,80,0.70)');
+  sideExit(ctx, 'right', 'rgba(0,220,80,0.70)');
 }
 
-function drawAiCore(ctx, flags, defeated, collected, doneActions) {
+function drawAiCore(ctx, _flags, _defeated, _collected, _doneActions) {
   const t2 = Date.now();
   const pulse = 0.5 + Math.sin(t2 * 0.002) * 0.3;
 
-  backWall(ctx, '#150800', '#080300');
-  perspFloor(ctx, '#100600', '#070300', 'rgba(150,60,0,0.10)');
+  backWall(ctx, '#2e1400', '#180800');
+  perspFloor(ctx, '#201000', '#120800', 'rgba(220,100,0,0.28)');
 
-  // ceiling
-  rect(ctx, 0, 0, SW, 24, '#1c0a00');
-  // processing array cables from ceiling to center
-  ctx.strokeStyle = '#2a1200'; ctx.lineWidth = 2;
+  // Ceiling — amber-lit
+  rect(ctx, 0, 0, SW, 26, '#281200');
+  // Processing array cables converging on ARIA
+  ctx.strokeStyle = '#4a2000'; ctx.lineWidth = 3;
   for (let i = 0; i < 8; i++) {
     const cx2 = 80 + i * 70;
-    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(VX, HY - 30); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(VX, HY - 25); ctx.stroke();
   }
-  // ceiling glow from ARIA
-  glow(ctx, VX, 0, 180, `rgba(255,130,0,${0.12 * pulse})`);
+  glow(ctx, VX, 0, 220, `rgba(255,150,0,${0.28 * pulse})`);
 
-  // server racks — left bank
+  // Server racks — visible against wall
   for (let side = 0; side < 2; side++) {
-    const rx = side === 0 ? 62 : SW - 62 - 100;
-    const rw = 100, rh = HY - 30;
-    rect(ctx, rx, 26, rw, rh, '#0e0800');
-    ctx.strokeStyle = '#251200'; ctx.lineWidth = 1; ctx.strokeRect(rx, 26, rw, rh);
-    // rack units
-    for (let u = 0; u < 8; u++) {
-      const uy = 30 + u * (rh / 8);
-      rect(ctx, rx + 3, uy, rw - 6, rh / 8 - 2, '#0c0700');
-      ctx.strokeStyle = '#1e0e00'; ctx.lineWidth = 1; ctx.strokeRect(rx + 3, uy, rw - 6, rh / 8 - 2);
-      // LED indicators
-      const tick = Math.floor(t2 / 600 + u * 0.7) % 5;
+    const rx = side === 0 ? 62 : SW - 162;
+    const rw = 100, rh = HY - 28;
+    rect(ctx, rx, 26, rw, rh, '#1e1000');
+    ctx.strokeStyle = '#4a2400'; ctx.lineWidth = 2; ctx.strokeRect(rx, 26, rw, rh);
+    for (let u = 0; u < 7; u++) {
+      const uy = 30 + u * (rh / 7);
+      rect(ctx, rx + 4, uy, rw - 8, rh / 7 - 3, '#140c00');
+      ctx.strokeStyle = '#3a1c00'; ctx.lineWidth = 1; ctx.strokeRect(rx + 4, uy, rw - 8, rh / 7 - 3);
+      const tick = Math.floor(t2 / 500 + u * 0.6) % 5;
       for (let led = 0; led < 5; led++) {
-        const ledOn = led !== tick;
-        rect(ctx, rx + 6 + led * 12, uy + 4, 8, 5,
-          ledOn ? (led === 2 ? '#ff6600' : '#604000') : '#1a0e00');
-        if (ledOn && led === 2) glow(ctx, rx + 10 + led * 12, uy + 6, 10, 'rgba(255,100,0,0.3)');
+        const col = led === tick ? '#1a0c00' : (led === 2 ? '#ff8800' : '#cc5500');
+        rect(ctx, rx + 7 + led * 17, uy + 4, 12, 6, col);
+        if (led !== tick && led === 2) glow(ctx, rx + 13 + led * 17, uy + 7, 14, 'rgba(255,140,0,0.55)');
       }
     }
   }
 
-  // Central ARIA terminal pedestal (hotspot at x:320, y:288)
-  // Pedestal base
-  rect(ctx, 284, HY + 50, 72, 88, '#1a0c00');
-  rect(ctx, 288, HY + 54, 64, 80, '#120800');
-  ctx.strokeStyle = `rgba(255,140,0,${0.4 * pulse})`; ctx.lineWidth = 2;
-  ctx.strokeRect(284, HY + 50, 72, 88);
+  // ARIA pedestal (hotspot x:320, y:288)
+  rect(ctx, 282, HY + 44, 76, 96, '#281800');
+  rect(ctx, 286, HY + 48, 68, 88, '#1c1000');
+  ctx.strokeStyle = `rgba(255,160,0,${0.7 * pulse})`; ctx.lineWidth = 3;
+  ctx.strokeRect(282, HY + 44, 76, 96);
+  glow(ctx, VX, HY + 44, 80, `rgba(255,140,0,${0.45 * pulse})`);
 
-  // Holographic ARIA core module on pedestal top
-  const cg = ctx.createRadialGradient(VX, HY + 46, 4, VX, HY + 46, 50);
-  cg.addColorStop(0, `rgba(255,170,0,${0.5 * pulse})`);
-  cg.addColorStop(0.4, `rgba(200,80,0,${0.18 * pulse})`);
-  cg.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = cg; ctx.fillRect(VX - 50, HY, 100, 96);
+  // Core module on pedestal
+  rect(ctx, 302, HY + 16, 36, 32, '#3a2000');
+  rect(ctx, 306, HY + 20, 28, 24, '#502800');
+  ctx.strokeStyle = `rgba(255,180,0,${pulse})`; ctx.lineWidth = 2;
+  ctx.strokeRect(302, HY + 16, 36, 32);
+  rect(ctx, 312, HY + 27, 16, 10, `rgba(255,230,0,${pulse})`);
+  glow(ctx, VX, HY + 32, 32, `rgba(255,220,0,${0.8 * pulse})`);
 
-  // Core device body
-  rect(ctx, 304, HY + 22, 32, 28, '#2a1800');
-  rect(ctx, 308, HY + 26, 24, 20, '#401c00');
-  ctx.strokeStyle = `rgba(255,160,0,${0.8 * pulse})`; ctx.lineWidth = 2;
-  ctx.strokeRect(304, HY + 22, 32, 28);
-  // core crystal
-  rect(ctx, 314, HY + 32, 12, 8, `rgba(255,200,0,${pulse})`);
-  glow(ctx, VX, HY + 36, 24, `rgba(255,180,0,${0.6 * pulse})`);
+  // Terminal screen — bright amber text
+  rect(ctx, 254, 48, 132, 86, '#1e1000');
+  rect(ctx, 258, 52, 124, 78, '#100800');
+  ctx.strokeStyle = `rgba(255,140,0,0.85)`; ctx.lineWidth = 2; ctx.strokeRect(254, 48, 132, 86);
+  glow(ctx, VX, 90, 80, `rgba(255,120,0,${0.35 * pulse})`);
+  ctx.font = '10px "Courier New",monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  const ariaLines = ['ARIA SUBSYSTEM', '> EMERGENCY ACTIVE', '> DETECTING...', '> ...who\'s there?'];
+  ariaLines.forEach((l, i) => {
+    ctx.fillStyle = `rgba(${i===3?'255,230,50':'255,150,0'},${0.85 * pulse})`;
+    ctx.fillText(l, 262, 56 + i * 17);
+  });
 
-  // Terminal screen above pedestal
-  rect(ctx, 256, 52, 128, 80, '#120900');
-  rect(ctx, 260, 56, 120, 72, '#080400');
-  ctx.strokeStyle = `rgba(200,100,0,0.6)`; ctx.lineWidth = 2; ctx.strokeRect(256, 52, 128, 80);
-  ctx.fillStyle = `rgba(200,100,0,${0.4 * pulse})`;
-  const lines = ['ARIA SUBSYSTEM', '> EMERGENCY ACTIVE', '> DETECTING...', '> ...who\'s there?'];
-  ctx.font = '9px "Courier New",monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  lines.forEach((l, i) => { ctx.fillStyle = `rgba(${i===3?'255,220,0':'200,100,0'},${0.7 * pulse})`; ctx.fillText(l, 264, 60 + i * 16); });
-  glow(ctx, VX, 92, 70, `rgba(200,80,0,${0.10 * pulse})`);
-
-  // Floor glow
-  glow(ctx, VX, SH - 40, 200, `rgba(200,80,0,${0.10 * pulse})`);
-
-  sideExit(ctx, 'left',  'rgba(180,80,0,0.45)');
-  sideExit(ctx, 'right', 'rgba(60,100,200,0.45)');
+  glow(ctx, VX, SH - 30, 250, `rgba(220,100,0,${0.18 * pulse})`);
+  sideExit(ctx, 'left',  'rgba(220,110,0,0.75)');
+  sideExit(ctx, 'right', 'rgba(80,120,240,0.75)');
 }
 
 function drawBridge(ctx, _flags, defeated, _collected, doneActions) {
-  backWall(ctx, '#080d1e', '#030510');
-  perspFloor(ctx, '#060810', '#03050c', 'rgba(20,40,140,0.12)');
+  backWall(ctx, '#1a2848', '#0c1830');
+  perspFloor(ctx, '#0e1828', '#080e18', 'rgba(40,70,200,0.25)');
 
-  rect(ctx, 0, 0, SW, 24, '#06091c');
+  rect(ctx, 0, 0, SW, 26, '#182440');
 
-  // Main viewport — large panoramic window spanning back wall
-  rect(ctx, 100, 10, 440, 122, '#010208');
-  ctx.strokeStyle = '#1e2e58'; ctx.lineWidth = 3; ctx.strokeRect(100, 10, 440, 122);
-  // viewport frame dividers
-  ctx.strokeStyle = '#141e40'; ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(320, 10); ctx.lineTo(320, 132); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(100, 66); ctx.lineTo(540, 66); ctx.stroke();
+  // Main viewport — panoramic window
+  rect(ctx, 98, 8, 444, 126, '#010310');
+  ctx.strokeStyle = '#3050a0'; ctx.lineWidth = 3; ctx.strokeRect(98, 8, 444, 126);
+  glow(ctx, VX, 71, 200, 'rgba(40,80,220,0.12)');
+  // Frame dividers
+  ctx.strokeStyle = '#203060'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(320, 8); ctx.lineTo(320, 134); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(98, 67); ctx.lineTo(542, 67); ctx.stroke();
 
   // Star field
   const starSeed = [37,89,142,203,17,256,301,178,63,228,94,315,150,55,270,120,45,190,
                     88,165,240,312,14,200,350,420,78,190,270,380,52,130,210,290,410];
   ctx.fillStyle = '#ffffff';
   starSeed.forEach((s, i) => {
-    const sx = 103 + (s * 17 + i * 31) % 434;
-    const sy = 13 + (s * 7 + i * 13) % 116;
+    const sx = 101 + (s * 17 + i * 31) % 438;
+    const sy = 11 + (s * 7 + i * 13) % 120;
     ctx.fillRect(sx, sy, (i % 4 === 0) ? 2 : 1, (i % 4 === 0) ? 2 : 1);
   });
-  // nebula
-  const ng = ctx.createRadialGradient(390, 55, 8, 390, 55, 70);
-  ng.addColorStop(0, 'rgba(80,20,180,0.2)'); ng.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = ng; ctx.fillRect(320, 10, 220, 122);
-  // blue nebula secondary
-  const ng2 = ctx.createRadialGradient(180, 80, 5, 180, 80, 50);
-  ng2.addColorStop(0, 'rgba(0,60,200,0.15)'); ng2.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = ng2; ctx.fillRect(100, 10, 220, 122);
-  // Hull breach — visible through right side of viewport
-  glow(ctx, 520, 50, 60, 'rgba(100,150,255,0.12)');
-  // crack lines on viewport glass
-  ctx.strokeStyle = 'rgba(180,210,255,0.25)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(340, 10); ctx.lineTo(322, 44); ctx.lineTo(308, 70); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(322, 44); ctx.lineTo(340, 66); ctx.stroke();
+  // Nebula — more saturated
+  glow(ctx, 420, 55, 80, 'rgba(120,30,220,0.35)');
+  glow(ctx, 185, 82, 60, 'rgba(0,80,240,0.30)');
+  // Hull breach glow — right side, bright
+  glow(ctx, 530, 55, 55, 'rgba(120,180,255,0.40)');
+  // Planet
+  ctx.fillStyle = '#1a3880';
+  ctx.beginPath(); ctx.arc(158, 96, 40, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#1e4499';
+  ctx.beginPath(); ctx.arc(158, 96, 40, 0, Math.PI * 2); ctx.fill();
+  glow(ctx, 140, 82, 32, 'rgba(80,130,255,0.35)');
+  // Viewport crack — bright
+  ctx.strokeStyle = 'rgba(200,220,255,0.55)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(342, 8); ctx.lineTo(324, 44); ctx.lineTo(310, 70); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(324, 44); ctx.lineTo(342, 67); ctx.stroke();
 
-  // Planet — distant, partially visible
-  ctx.fillStyle = 'rgba(30,60,140,0.35)';
-  ctx.beginPath(); ctx.arc(155, 95, 38, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = 'rgba(50,80,180,0.2)';
-  ctx.beginPath(); ctx.arc(155, 95, 38, 0, Math.PI * 2); ctx.fill();
-  glow(ctx, 135, 80, 30, 'rgba(60,100,220,0.15)');
-
-  // Life-support / system readouts on side walls
+  // Side wall readouts
   for (let side = 0; side < 2; side++) {
     const sx = side === 0 ? 62 : SW - 100;
-    rect(ctx, sx, 25, 36, HY - 28, '#06090e');
-    ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1; ctx.strokeRect(sx, 25, 36, HY - 28);
+    rect(ctx, sx, 26, 36, HY - 28, '#101828');
+    ctx.strokeStyle = '#203050'; ctx.lineWidth = 1; ctx.strokeRect(sx, 26, 36, HY - 28);
     for (let j = 0; j < 5; j++) {
-      const col = j === 1 ? '#cc2200' : j === 3 ? '#aa4400' : '#002244';
+      const col = j === 1 ? '#ee2200' : j === 3 ? '#cc5500' : '#003388';
       rect(ctx, sx + 4, 30 + j * 24, 28, 16, col);
-      ctx.fillStyle = j === 1 ? 'rgba(255,30,0,0.4)' : 'rgba(0,60,180,0.2)';
-      ctx.fillRect(sx + 4, 30 + j * 24, 28, 16);
+      if (j === 1) glow(ctx, sx + 18, 38, 14, 'rgba(255,30,0,0.45)');
+      if (j === 3) glow(ctx, sx + 18, 38 + 72, 10, 'rgba(220,100,0,0.30)');
     }
   }
 
-  // Main control consoles — curving bank in perspective
+  // Control consoles
   const consoles = [
-    { x: 90,  y: HY + 28, w: 110, h: 50 },
-    { x: 220, y: HY + 18, w: 90,  h: 44 },
-    { x: 330, y: HY + 18, w: 90,  h: 44 },
-    { x: 440, y: HY + 28, w: 110, h: 50 },
+    { x: 86,  y: HY + 26, w: 112, h: 52 },
+    { x: 218, y: HY + 16, w: 92,  h: 46 },
+    { x: 330, y: HY + 16, w: 92,  h: 46 },
+    { x: 440, y: HY + 26, w: 112, h: 52 },
   ];
   for (const c of consoles) {
-    rect(ctx, c.x, c.y, c.w, c.h, '#080c1c');
-    rect(ctx, c.x, c.y, c.w, 8, '#0c1228');
-    ctx.strokeStyle = '#162040'; ctx.lineWidth = 1; ctx.strokeRect(c.x, c.y, c.w, c.h);
-    ctx.fillStyle = 'rgba(0,60,200,0.10)'; ctx.fillRect(c.x + 4, c.y + 10, c.w - 8, c.h - 18);
-    // status lights
+    rect(ctx, c.x, c.y, c.w, c.h, '#121c38');
+    rect(ctx, c.x, c.y, c.w, 10, '#182448');
+    ctx.strokeStyle = '#2a3c70'; ctx.lineWidth = 2; ctx.strokeRect(c.x, c.y, c.w, c.h);
+    ctx.fillStyle = 'rgba(0,80,220,0.20)'; ctx.fillRect(c.x + 4, c.y + 12, c.w - 8, c.h - 20);
     for (let j = 0; j < 5; j++) {
-      const col = j === 1 ? '#cc3300' : j === 3 ? '#003388' : '#001a44';
-      rect(ctx, c.x + 6 + j * (c.w - 12) / 5, c.y + 14, 14, 6, col);
+      const col = j === 1 ? '#ee3300' : j === 3 ? '#0044cc' : '#001a55';
+      rect(ctx, c.x + 7 + j * (c.w - 14) / 5, c.y + 16, 14, 7, col);
+      if (j === 1) glow(ctx, c.x + 14 + j * (c.w - 14) / 5, c.y + 20, 10, 'rgba(255,40,0,0.40)');
     }
   }
 
-  // Navigation console with blinking alert (hotspot x:542, y:282)
-  rect(ctx, 490, HY + 40, 88, 80, '#060a16');
-  rect(ctx, 494, HY + 44, 80, 68, '#020508');
-  ctx.strokeStyle = '#1a2850'; ctx.lineWidth = 2; ctx.strokeRect(490, HY + 40, 88, 80);
-  ctx.fillStyle = 'rgba(0,80,200,0.12)'; ctx.fillRect(494, HY + 44, 80, 68);
+  // Nav console — blinking alert (hotspot x:542, y:282)
+  rect(ctx, 488, HY + 38, 92, 84, '#0e1630');
+  rect(ctx, 492, HY + 42, 84, 72, '#080e22');
+  ctx.strokeStyle = '#2a4080'; ctx.lineWidth = 2; ctx.strokeRect(488, HY + 38, 92, 84);
+  ctx.fillStyle = 'rgba(0,80,220,0.22)'; ctx.fillRect(492, HY + 42, 84, 72);
   if (!doneActions?.read_message) {
     const blink = Math.floor(Date.now() / 500) % 2;
-    glow(ctx, 534, HY + 68, blink ? 30 : 8, 'rgba(0,180,255,0.5)');
-    rect(ctx, 520, HY + 56, 28, 12, blink ? '#00aaff' : '#003366');
-    ctx.font = '7px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    ctx.fillStyle = blink ? '#aaddff' : '#003366'; ctx.fillText('MSG', 534, HY + 70);
+    rect(ctx, 518, HY + 52, 36, 14, blink ? '#00bbff' : '#003366');
+    if (blink) glow(ctx, 536, HY + 59, 30, 'rgba(0,200,255,0.65)');
+    ctx.font = 'bold 9px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = blink ? '#88ddff' : '#003366'; ctx.fillText('NEW MSG', 536, HY + 68);
   }
 
-  // Defense system (hotspot x:358, y:262)
+  // Defense turret (hotspot x:358, y:262)
   if (!defeated?.bridge) {
-    const dx = 334, dy = 218;
-    // turret base
-    rect(ctx, dx, dy + 22, 48, 28, '#1a2030');
-    // turret body
-    rect(ctx, dx + 8, dy + 8, 32, 20, '#202838');
-    ctx.strokeStyle = '#cc2020'; ctx.lineWidth = 2; ctx.strokeRect(dx + 8, dy + 8, 32, 20);
-    // barrel
-    rect(ctx, dx + 20, dy - 8, 8, 18, '#303848');
-    // targeting laser (faint red beam)
-    glow(ctx, dx + 24, dy - 8, 20, 'rgba(255,0,0,0.2)');
-    // red eye sensor
-    glow(ctx, dx + 24, dy + 16, 10, 'rgba(255,20,0,0.6)');
-    rect(ctx, dx + 18, dy + 12, 12, 6, '#cc0000');
+    const dx = 332, dy = 214;
+    rect(ctx, dx, dy + 24, 52, 30, '#243040');
+    rect(ctx, dx + 8, dy + 8, 36, 22, '#2c3848');
+    ctx.strokeStyle = '#ee2020'; ctx.lineWidth = 2; ctx.strokeRect(dx + 8, dy + 8, 36, 22);
+    rect(ctx, dx + 22, dy - 10, 10, 20, '#384858');
+    glow(ctx, dx + 27, dy + 18, 14, 'rgba(255,0,0,0.70)');
+    rect(ctx, dx + 19, dy + 13, 16, 8, '#cc0000');
   }
 
-  // Atmospheric blue glow on floor
-  glow(ctx, VX, SH - 30, 220, 'rgba(20,50,180,0.08)');
-
-  sideExit(ctx, 'left', 'rgba(50,80,200,0.5)');
+  glow(ctx, VX, SH - 30, 250, 'rgba(30,60,200,0.14)');
+  sideExit(ctx, 'left', 'rgba(70,110,255,0.75)');
 }
 
 function drawEngineering(ctx, _flags, defeated, collected, _doneActions) {
-  backWall(ctx, '#1c0500', '#0c0200');
-  perspFloor(ctx, '#140400', '#090200', 'rgba(180,60,0,0.10)');
+  backWall(ctx, '#341200', '#1c0800');
+  perspFloor(ctx, '#260e00', '#160600', 'rgba(220,80,0,0.28)');
 
-  rect(ctx, 0, 0, SW, 24, '#200700');
+  rect(ctx, 0, 0, SW, 26, '#2c1000');
 
-  // Engine glow — large radial bloom from back wall center
-  glow(ctx, VX, 60, 280, 'rgba(255,100,0,0.18)');
-  glow(ctx, VX, HY, 160, 'rgba(255,60,0,0.10)');
+  // Engine glow — dominant orange bloom
+  glow(ctx, VX, 55, 310, 'rgba(255,120,0,0.38)');
+  glow(ctx, VX, HY, 180, 'rgba(255,70,0,0.20)');
 
-  // Ceiling pipes
-  ctx.strokeStyle = '#2a0e00'; ctx.lineWidth = 4;
+  // Ceiling pipes — visible orange-tinted metal
+  ctx.strokeStyle = '#5a2800'; ctx.lineWidth = 5;
   for (let i = 0; i < 4; i++) {
     const px = 90 + i * 150;
-    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, 24); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, 26); ctx.stroke();
   }
-  ctx.strokeStyle = '#1e0800'; ctx.lineWidth = 6;
-  ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(SW, 14); ctx.stroke();
-  // burst sparks from damaged pipe
-  glow(ctx, 400, 24, 24, 'rgba(255,140,0,0.3)');
+  // Ceiling horizontal run pipe
+  ctx.strokeStyle = '#3a1800'; ctx.lineWidth = 7;
+  ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(SW, 15); ctx.stroke();
+  glow(ctx, 400, 24, 30, 'rgba(255,160,0,0.50)'); // sparks
 
-  // Engine housing — large central structure on back wall
-  rect(ctx, 160, 12, 320, HY - 12, '#120600');
-  ctx.strokeStyle = '#2a0e00'; ctx.lineWidth = 2; ctx.strokeRect(160, 12, 320, HY - 12);
-  // engine core rings (nested ellipses — perspective)
+  // Engine housing — central back wall
+  rect(ctx, 156, 10, 328, HY - 10, '#280e00');
+  ctx.strokeStyle = '#5a2200'; ctx.lineWidth = 3; ctx.strokeRect(156, 10, 328, HY - 10);
+  // Engine rings — bright and saturated
+  const eng_pulse = 0.5 + Math.sin(Date.now() * 0.003) * 0.3;
   for (let i = 0; i < 4; i++) {
-    const er = 60 - i * 12;
+    const er = 64 - i * 13;
     const ea = Math.round(er * 0.45);
-    ctx.strokeStyle = `rgba(255,${70 + i * 30},0,${0.5 - i * 0.08})`; ctx.lineWidth = 3 - i * 0.5;
+    ctx.strokeStyle = `rgba(255,${80 + i * 35},0,${0.85 - i * 0.12})`; ctx.lineWidth = 4 - i;
     ctx.beginPath(); ctx.ellipse(VX, 72, er, ea, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = `rgba(255,${50 + i * 20},0,${0.06 - i * 0.01})`;
+    ctx.fillStyle = `rgba(255,${60 + i * 25},0,${0.14 - i * 0.02})`;
     ctx.beginPath(); ctx.ellipse(VX, 72, er, ea, 0, 0, Math.PI * 2); ctx.fill();
   }
-  // core center pulse
-  const eng_pulse = 0.5 + Math.sin(Date.now() * 0.003) * 0.3;
-  glow(ctx, VX, 72, 35, `rgba(255,180,0,${0.4 * eng_pulse})`);
-  rect(ctx, VX - 8, 64, 16, 16, `rgba(255,220,0,${0.7 * eng_pulse})`);
+  glow(ctx, VX, 72, 44, `rgba(255,200,0,${0.65 * eng_pulse})`);
+  rect(ctx, VX - 10, 63, 20, 18, `rgba(255,240,0,${0.9 * eng_pulse})`);
 
-  // Side machinery on back wall
+  // Side machinery
   for (let side = 0; side < 2; side++) {
     const mx = side === 0 ? 62 : SW - 162;
-    rect(ctx, mx, 18, 100, HY - 20, '#0e0500');
-    ctx.strokeStyle = '#1e0a00'; ctx.lineWidth = 1; ctx.strokeRect(mx, 18, 100, HY - 20);
+    rect(ctx, mx, 16, 96, HY - 18, '#1e0a00');
+    ctx.strokeStyle = '#4a2000'; ctx.lineWidth = 2; ctx.strokeRect(mx, 16, 96, HY - 18);
     for (let j = 0; j < 4; j++) {
-      rect(ctx, mx + 6, 24 + j * 30, 88, 22, '#0c0400');
-      ctx.strokeStyle = '#200c00'; ctx.lineWidth = 1; ctx.strokeRect(mx + 6, 24 + j * 30, 88, 22);
-      // valve / gauge
-      ctx.fillStyle = 'rgba(255,80,0,0.2)'; ctx.beginPath();
-      ctx.arc(mx + 50, 35 + j * 30, 8, 0, Math.PI * 2); ctx.fill();
+      rect(ctx, mx + 6, 22 + j * 30, 84, 22, '#160800');
+      ctx.strokeStyle = '#3a1800'; ctx.lineWidth = 1; ctx.strokeRect(mx + 6, 22 + j * 30, 84, 22);
+      glow(ctx, mx + 48, 33 + j * 30, 14, 'rgba(255,90,0,0.38)');
+      ctx.fillStyle = '#ff6600'; ctx.beginPath();
+      ctx.arc(mx + 48, 33 + j * 30, 6, 0, Math.PI * 2); ctx.fill();
     }
   }
 
-  // Escape pod bays (left and right of center, on floor-level)
-  // Left pod — empty (bay open, pod gone)
-  const lp = { x: 62, y: HY + 20, w: 130, h: 200 };
-  rect(ctx, lp.x, lp.y, lp.w, lp.h, '#0e0600');
-  rect(ctx, lp.x + 4, lp.y + 4, lp.w - 8, lp.h - 8, '#060200');
-  ctx.strokeStyle = '#1e0e00'; ctx.lineWidth = 2; ctx.strokeRect(lp.x, lp.y, lp.w, lp.h);
-  ctx.font = 'bold 10px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#3a1800'; ctx.fillText('BAY 1 — EMPTY', lp.x + lp.w / 2, lp.y + lp.h / 2);
+  // Left pod bay — empty
+  const lp = { x: 62, y: HY + 18, w: 136, h: 206 };
+  rect(ctx, lp.x, lp.y, lp.w, lp.h, '#1a0a00');
+  rect(ctx, lp.x + 5, lp.y + 5, lp.w - 10, lp.h - 10, '#0c0400');
+  ctx.strokeStyle = '#3a1800'; ctx.lineWidth = 2; ctx.strokeRect(lp.x, lp.y, lp.w, lp.h);
+  ctx.font = 'bold 11px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#6a2800'; ctx.fillText('BAY 1', lp.x + lp.w / 2, lp.y + lp.h / 2 - 10);
+  ctx.fillStyle = '#440000'; ctx.fillText('EMPTY', lp.x + lp.w / 2, lp.y + lp.h / 2 + 10);
 
-  // Right pod — intact (near hotspot x:198, y:302 is launch_pod action)
-  const rp = { x: 448, y: HY + 20, w: 130, h: 200 };
-  rect(ctx, rp.x, rp.y, rp.w, rp.h, '#1a0e00');
-  rect(ctx, rp.x + 4, rp.y + 4, rp.w - 8, rp.h - 8, '#100800');
-  ctx.strokeStyle = '#3a1800'; ctx.lineWidth = 2; ctx.strokeRect(rp.x, rp.y, rp.w, rp.h);
-  // pod interior
-  ctx.fillStyle = 'rgba(60,30,0,0.3)'; ctx.fillRect(rp.x + 4, rp.y + 4, rp.w - 8, rp.h - 8);
-  // pilot seat outline
-  rect(ctx, rp.x + 38, rp.y + 80, 54, 80, '#0e0800');
-  ctx.strokeStyle = '#281400'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 38, rp.y + 80, 54, 80);
-  // fuel indicator (right side of pod)
+  // Right pod bay — intact
+  const rp = { x: 442, y: HY + 18, w: 136, h: 206 };
+  rect(ctx, rp.x, rp.y, rp.w, rp.h, '#281400');
+  rect(ctx, rp.x + 5, rp.y + 5, rp.w - 10, rp.h - 10, '#180c00');
+  ctx.strokeStyle = '#6a3000'; ctx.lineWidth = 2; ctx.strokeRect(rp.x, rp.y, rp.w, rp.h);
+  ctx.fillStyle = 'rgba(100,50,0,0.28)'; ctx.fillRect(rp.x + 5, rp.y + 5, rp.w - 10, rp.h - 10);
+  // Pilot seat
+  rect(ctx, rp.x + 42, rp.y + 82, 52, 80, '#1c1000');
+  ctx.strokeStyle = '#3a2000'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 42, rp.y + 82, 52, 80);
+  // Fuel indicator
   const fuelOk = collected?.fuel_cell;
-  rect(ctx, rp.x + 8, rp.y + 20, 18, 50, '#0c0600');
-  rect(ctx, rp.x + 10, rp.y + 22, 14, fuelOk ? 46 : 6, fuelOk ? '#ffaa00' : '#3a0000');
-  ctx.strokeStyle = '#2a1000'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 8, rp.y + 20, 18, 50);
-  glow(ctx, rp.x + 15, rp.y + 45, fuelOk ? 22 : 8, fuelOk ? 'rgba(255,180,0,0.3)' : 'rgba(180,0,0,0.2)');
-  // launch-ready label
-  ctx.font = 'bold 10px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.fillStyle = fuelOk ? '#ffaa00' : '#3a1800';
-  ctx.fillText(fuelOk ? 'READY TO LAUNCH' : 'BAY 2 — NO FUEL', rp.x + rp.w / 2, rp.y + 10);
+  rect(ctx, rp.x + 9, rp.y + 20, 20, 52, '#140a00');
+  rect(ctx, rp.x + 11, rp.y + 22, 16, fuelOk ? 48 : 6, fuelOk ? '#ffaa00' : '#660000');
+  ctx.strokeStyle = '#3a2000'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 9, rp.y + 20, 20, 52);
+  glow(ctx, rp.x + 19, rp.y + 46, fuelOk ? 28 : 10, fuelOk ? 'rgba(255,180,0,0.55)' : 'rgba(200,0,0,0.35)');
+  ctx.font = 'bold 11px "Courier New",monospace'; ctx.textAlign = 'center';
+  ctx.fillStyle = fuelOk ? '#ffaa00' : '#7a3000';
+  ctx.fillText(fuelOk ? 'READY TO LAUNCH' : 'BAY 2 — NO FUEL', rp.x + rp.w / 2, rp.y + 12);
 
   // Guard (hotspot x:428, y:268)
   if (!defeated?.engineering) {
-    const gx = 404, gy = 220;
-    // body armor
-    rect(ctx, gx, gy + 24, 46, 54, '#1e3c5a');
-    // shoulder pads
-    rect(ctx, gx - 8, gy + 28, 14, 30, '#162e48');
-    rect(ctx, gx + 40, gy + 28, 14, 30, '#162e48');
-    // head/helmet
-    rect(ctx, gx + 6, gy, 34, 26, '#c8a870');
-    rect(ctx, gx + 4, gy + 2, 38, 14, '#1a2e44'); // visor
-    ctx.strokeStyle = '#243e5a'; ctx.lineWidth = 1; ctx.strokeRect(gx + 4, gy + 2, 38, 14);
-    // legs
-    rect(ctx, gx + 4, gy + 78, 16, 30, '#142840');
-    rect(ctx, gx + 26, gy + 78, 16, 30, '#142840');
-    // Nexus Corp badge
-    rect(ctx, gx + 14, gy + 32, 18, 12, '#cc2200');
+    const gx = 402, gy = 215;
+    rect(ctx, gx, gy + 26, 50, 58, '#2a4c6e');          // body armor
+    rect(ctx, gx - 10, gy + 30, 16, 32, '#1e3858');      // left shoulder
+    rect(ctx, gx + 44, gy + 30, 16, 32, '#1e3858');      // right shoulder
+    rect(ctx, gx + 7, gy, 36, 28, '#d4b880');             // head (skin)
+    rect(ctx, gx + 5, gy + 3, 42, 15, '#1e3050');         // visor
+    ctx.strokeStyle = '#3060a0'; ctx.lineWidth = 2; ctx.strokeRect(gx + 5, gy + 3, 42, 15);
+    rect(ctx, gx + 4, gy + 84, 18, 32, '#182840');        // left leg
+    rect(ctx, gx + 28, gy + 84, 18, 32, '#182840');       // right leg
+    rect(ctx, gx + 14, gy + 34, 22, 14, '#dd2200');       // Nexus badge — bright!
     ctx.strokeStyle = '#ee3300'; ctx.lineWidth = 1; ctx.strokeRect(gx + 14, gy + 32, 18, 12);
     ctx.font = '7px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#ff5500';
     ctx.fillText('NXS', gx + 23, gy + 40);
@@ -856,13 +771,11 @@ function drawEngineering(ctx, _flags, defeated, collected, _doneActions) {
   }
 
   // Fuel cell item floor shadow (hotspot x:168, y:342)
-  ctx.fillStyle = 'rgba(255,160,0,0.08)';
-  ctx.beginPath(); ctx.ellipse(168, 352, 24, 7, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,160,0,0.30)';
+  ctx.beginPath(); ctx.ellipse(168, 352, 26, 8, 0, 0, Math.PI * 2); ctx.fill();
 
-  // Atmospheric engine heat shimmer / orange floor glow
-  glow(ctx, VX, SH - 20, 260, 'rgba(200,80,0,0.08)');
-
-  sideExit(ctx, 'right', 'rgba(180,80,0,0.5)');
+  glow(ctx, VX, SH - 20, 280, 'rgba(220,90,0,0.20)');
+  sideExit(ctx, 'right', 'rgba(220,110,0,0.75)');
 }
 
 function drawScene(ctx, locId, state) {
