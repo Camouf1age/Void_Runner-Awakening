@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
 const SAVE_KEY = 'void-awakening-save';
-const SW = 320, SH = 168;
+const SW = 640, SH = 400;
 
 async function saveGame(state) {
   try { await window.storage.set(SAVE_KEY, JSON.stringify({ ...state, savedAt: Date.now() })); } catch (_) {}
@@ -120,51 +120,60 @@ const DIALOGUES = {
 // ═══════════════════════════════════════════════════════
 
 const ROOM_ENTRY = {
-  cryo_bay:    { x:60,  y:132 },
-  corridor_a:  { x:55,  y:132 },
-  med_bay:     { x:55,  y:132 },
-  ai_core:     { x:55,  y:132 },
-  bridge:      { x:55,  y:132 },
-  engineering: { x:55,  y:132 },
+  cryo_bay:    { x:160, y:350 },
+  corridor_a:  { x:160, y:350 },
+  med_bay:     { x:160, y:350 },
+  ai_core:     { x:160, y:350 },
+  bridge:      { x:160, y:350 },
+  engineering: { x:160, y:350 },
 };
 
-// exit zones: {dest, x,y,w,h}  item spots: {id,x,y,r}  enemy: {x,y,r}  actions: {id,x,y,r}
 const ROOM_HS = {
   cryo_bay: {
-    exits:   [{ dest:'corridor_a', x:295, y:68, w:25, h:82 }],
-    items:   [{ id:'emergency_kit', x:52, y:128, r:13 }, { id:'crew_manifest', x:235, y:122, r:13 }],
+    exits:   [{ dest:'corridor_a', x:578, y:120, w:62, h:235, label:'Corridor Alpha →' }],
+    items:   [{ id:'emergency_kit', x:118, y:338, r:28, label:'Emergency Kit' }, { id:'crew_manifest', x:498, y:328, r:28, label:'Crew Manifest' }],
     enemy:   null,
     actions: [],
   },
   corridor_a: {
-    exits:   [{ dest:'cryo_bay', x:0, y:68, w:22, h:82 }, { dest:'med_bay', x:295, y:68, w:25, h:82 }, { dest:'bridge', x:230, y:95, w:35, h:55 }],
-    items:   [{ id:'scrap_metal', x:175, y:128, r:13 }],
-    enemy:   { x:255, y:118, r:20 },
-    actions: [{ id:'search_body', x:108, y:130, r:14 }],
+    exits:   [
+      { dest:'cryo_bay', x:0,   y:120, w:62,  h:235, label:'← Cryo Bay' },
+      { dest:'med_bay',  x:578, y:120, w:62,  h:235, label:'Medical Bay →' },
+      { dest:'bridge',   x:262, y:168, w:116, h:105, label:'↑ Bridge' },
+    ],
+    items:   [{ id:'scrap_metal', x:338, y:348, r:28, label:'Scrap Metal' }],
+    enemy:   { x:492, y:272, r:42, label:'Damaged Drone' },
+    actions: [{ id:'search_body', x:188, y:355, r:32, label:'Search technician' }],
   },
   med_bay: {
-    exits:   [{ dest:'corridor_a', x:0, y:68, w:22, h:82 }, { dest:'ai_core', x:295, y:68, w:25, h:82 }],
-    items:   [{ id:'med_stim', x:75, y:126, r:13 }, { id:'ration_pack', x:150, y:126, r:13 }, { id:'data_chip', x:240, y:126, r:13 }],
+    exits:   [
+      { dest:'corridor_a', x:0,   y:120, w:62, h:235, label:'← Corridor' },
+      { dest:'ai_core',    x:578, y:120, w:62, h:235, label:'AI Core →' },
+    ],
+    items:   [{ id:'med_stim', x:162, y:342, r:28, label:'Med-Stim' }, { id:'ration_pack', x:332, y:342, r:28, label:'Ration Pack' }, { id:'data_chip', x:502, y:342, r:28, label:'Encrypted Data Chip' }],
     enemy:   null,
-    actions: [{ id:'read_chart', x:195, y:108, r:17 }],
+    actions: [{ id:'read_chart', x:428, y:228, r:36, label:'Read patient chart' }],
   },
   ai_core: {
-    exits:   [{ dest:'med_bay', x:295, y:68, w:25, h:82 }, { dest:'engineering', x:0, y:68, w:22, h:82 }],
+    exits:   [
+      { dest:'med_bay',     x:578, y:120, w:62, h:235, label:'Medical Bay →' },
+      { dest:'engineering', x:0,   y:120, w:62, h:235, label:'← Engineering' },
+    ],
     items:   [],
     enemy:   null,
-    actions: [{ id:'approach_aria', x:160, y:112, r:20 }],
+    actions: [{ id:'approach_aria', x:320, y:288, r:46, label:'Approach ARIA terminal' }],
   },
   bridge: {
-    exits:   [{ dest:'corridor_a', x:0, y:68, w:22, h:82 }],
-    items:   [{ id:'captains_log', x:85, y:128, r:13 }, { id:'credit_chip', x:225, y:128, r:13 }],
-    enemy:   { x:180, y:112, r:20 },
-    actions: [{ id:'read_message', x:255, y:118, r:15 }],
+    exits:   [{ dest:'corridor_a', x:0, y:120, w:62, h:235, label:'← Corridor' }],
+    items:   [{ id:'captains_log', x:172, y:342, r:28, label:"Captain's Log" }, { id:'credit_chip', x:492, y:342, r:28, label:'Credit Chip' }],
+    enemy:   { x:358, y:262, r:42, label:'Rogue Defense System' },
+    actions: [{ id:'read_message', x:542, y:282, r:32, label:'Read blinking message' }],
   },
   engineering: {
-    exits:   [{ dest:'ai_core', x:295, y:68, w:25, h:82 }],
-    items:   [{ id:'fuel_cell', x:68, y:128, r:13 }],
-    enemy:   { x:200, y:112, r:20 },
-    actions: [{ id:'launch_pod', x:95, y:115, r:18 }],
+    exits:   [{ dest:'ai_core', x:578, y:120, w:62, h:235, label:'AI Core →' }],
+    items:   [{ id:'fuel_cell', x:168, y:342, r:28, label:'Fuel Cell' }],
+    enemy:   { x:428, y:268, r:42, label:'Nexus Corp Security' },
+    actions: [{ id:'launch_pod', x:198, y:302, r:38, label:'Launch escape pod' }],
   },
 };
 
@@ -172,31 +181,119 @@ const ROOM_HS = {
 // DRAWING HELPERS
 // ═══════════════════════════════════════════════════════
 
+const HY = 155; // horizon Y  (back-wall / floor split)
+const VX = 320; // vanishing-point X
+
 function rect(ctx, x, y, w, h, color) { ctx.fillStyle = color; ctx.fillRect(x, y, w, h); }
 
-function drawFloor(ctx, near, far) {
-  const g = ctx.createLinearGradient(0, 115, 0, SH);
-  g.addColorStop(0, far); g.addColorStop(1, near);
-  ctx.fillStyle = g; ctx.fillRect(0, 115, SW, SH - 115);
-  ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 1;
-  for (let i = 1; i < 7; i++) {
-    ctx.beginPath(); ctx.moveTo(i * SW / 7, SH);
-    ctx.lineTo(160, 115); ctx.stroke();
+function glow(ctx, cx, cy, r, color) {
+  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  g.addColorStop(0, color); g.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = g; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+}
+
+function perspFloor(ctx, nearCol, farCol, lineCol) {
+  const g = ctx.createLinearGradient(0, HY, 0, SH);
+  g.addColorStop(0, farCol); g.addColorStop(1, nearCol);
+  ctx.fillStyle = g; ctx.fillRect(0, HY, SW, SH - HY);
+  ctx.strokeStyle = lineCol; ctx.lineWidth = 1;
+  for (let i = 0; i <= 9; i++) {
+    const bx = i * SW / 9;
+    ctx.beginPath(); ctx.moveTo(VX, HY); ctx.lineTo(bx, SH); ctx.stroke();
+  }
+  for (let i = 1; i <= 5; i++) {
+    const t = i / 5; const yy = HY + t * (SH - HY);
+    ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(SW, yy); ctx.stroke();
   }
 }
 
-function drawExit(ctx, x, y, w, h, color) {
-  ctx.fillStyle = color || 'rgba(80,100,180,0.12)';
-  ctx.fillRect(x, y, w, h);
-  ctx.strokeStyle = color ? color.replace('0.12','0.4') : 'rgba(80,100,180,0.4)';
-  ctx.lineWidth = 1; ctx.strokeRect(x, y, w, h);
+function backWall(ctx, colTop, colBot) {
+  const g = ctx.createLinearGradient(0, 0, 0, HY);
+  g.addColorStop(0, colTop); g.addColorStop(1, colBot);
+  ctx.fillStyle = g; ctx.fillRect(0, 0, SW, HY);
+}
+
+function sideExit(ctx, side, glowCol) {
+  const x = side === 'left' ? 0 : SW - 62;
+  const ew = 62, top = 120, ht = 235;
+  rect(ctx, x, top, ew, ht, 'rgba(0,0,0,0.88)');
+  const lg = ctx.createLinearGradient(
+    side === 'left' ? x + ew : x, 0,
+    side === 'left' ? x : x + ew, 0
+  );
+  lg.addColorStop(0, glowCol); lg.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = lg; ctx.fillRect(x, top, ew, ht);
+  ctx.strokeStyle = glowCol; ctx.lineWidth = 2; ctx.strokeRect(x, top, ew, ht);
+  // arrow
+  const ax = side === 'left' ? x + 26 : x + 36, ay = top + ht / 2;
+  ctx.fillStyle = glowCol; ctx.beginPath();
+  if (side === 'left') { ctx.moveTo(ax + 10, ay - 9); ctx.lineTo(ax - 6, ay); ctx.lineTo(ax + 10, ay + 9); }
+  else                 { ctx.moveTo(ax - 10, ay - 9); ctx.lineTo(ax + 6, ay); ctx.lineTo(ax - 10, ay + 9); }
+  ctx.fill();
 }
 
 function drawCryoBay(ctx, _f, _d, collected) {
-  // Deep red background
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#150303'); bg.addColorStop(1, '#0d0101');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+  // ── background
+  backWall(ctx, '#2a0404', '#0f0101');
+  perspFloor(ctx, '#1a0303', '#100101', 'rgba(120,0,0,0.12)');
+
+  // ceiling strip + glow strips
+  rect(ctx, 0, 0, SW, 22, '#1a0505');
+  for (let i = 0; i < 5; i++) {
+    const lx = 40 + i * 118;
+    rect(ctx, lx, 4, 38, 8, '#660000');
+    glow(ctx, lx + 19, 18, 80, 'rgba(220,30,0,0.18)');
+  }
+
+  // back-wall side paneling
+  rect(ctx, 0, 22, 62, HY - 22, '#180505');
+  rect(ctx, SW - 62, 22, 62, HY - 22, '#180505');
+
+  // cryo pod bank — back wall, perspective rows
+  const podRows = [
+    { count:10, y0:38, podW:42, podH:72, startX:70, gap:52, scale:0.55 },
+    { count: 7, y0:88, podW:54, podH:65, startX:85, gap:68, scale:0.75 },
+  ];
+  for (const row of podRows) {
+    for (let i = 0; i < row.count; i++) {
+      const px = row.startX + i * row.gap;
+      if (px + row.podW > SW - 70) continue;
+      rect(ctx, px, row.y0, row.podW, row.podH, '#1c2e40');
+      rect(ctx, px + 3, row.y0 + 4, row.podW - 6, row.podH - 8, '#040a12');
+      ctx.fillStyle = 'rgba(20,60,140,0.12)'; ctx.fillRect(px + 3, row.y0 + 4, row.podW - 6, row.podH - 8);
+      ctx.strokeStyle = '#1e3550'; ctx.lineWidth = 1; ctx.strokeRect(px, row.y0, row.podW, row.podH);
+      // status light — all dead red
+      rect(ctx, px + Math.round(row.podW * 0.38), row.y0 + 5, Math.round(row.podW * 0.24), 3, '#5a0000');
+      // ice condensation hint
+      ctx.fillStyle = 'rgba(80,120,200,0.05)';
+      ctx.fillRect(px + 4, row.y0 + row.podH - 16, row.podW - 8, 12);
+    }
+  }
+
+  // Player's open pod — center-left, on floor (pod they just exited)
+  rect(ctx, 180, HY + 30, 70, 120, '#1c2e40');
+  rect(ctx, 184, HY + 34, 62, 110, '#040a12');
+  ctx.strokeStyle = '#2a4060'; ctx.lineWidth = 2; ctx.strokeRect(180, HY + 30, 70, 120);
+  // open hatch indication
+  rect(ctx, 180, HY + 30, 70, 18, '#263848');
+  ctx.fillStyle = 'rgba(30,80,180,0.08)'; ctx.fillRect(184, HY + 48, 62, 96);
+  // cryo residue/frost
+  ctx.strokeStyle = 'rgba(120,180,255,0.25)'; ctx.lineWidth = 1;
+  for (let i = 0; i < 4; i++) {
+    ctx.beginPath(); ctx.moveTo(185 + i * 15, HY + 48); ctx.lineTo(190 + i * 12, HY + 80); ctx.stroke();
+  }
+
+  // Atmospheric fog near floor
+  const fog = ctx.createLinearGradient(0, HY + 40, 0, HY + 100);
+  fog.addColorStop(0, 'rgba(180,30,0,0.06)'); fog.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = fog; ctx.fillRect(0, HY, SW, 120);
+
+  // Emergency lights pooling on floor
+  glow(ctx, 160, SH - 30, 120, 'rgba(180,20,0,0.10)');
+  glow(ctx, 480, SH - 40, 100, 'rgba(180,20,0,0.08)');
+
+  // Right-side exit doorway
+  sideExit(ctx, 'right', 'rgba(60,100,220,0.5)');
 
   // Ceiling
   rect(ctx, 0, 0, SW, 14, '#220808');
@@ -232,302 +329,540 @@ function drawCryoBay(ctx, _f, _d, collected) {
     }
   }
 
-  drawFloor(ctx, '#180808', '#0e0404');
-
-  // Exit right
-  drawExit(ctx, 295, 68, 25, 82);
 }
 
 function drawCorridorA(ctx, flags, defeated, collected, doneActions) {
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#020510'); bg.addColorStop(1, '#010208');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+  // ── background
+  backWall(ctx, '#08101e', '#020408');
+  perspFloor(ctx, '#080c14', '#04060c', 'rgba(30,50,120,0.12)');
 
-  rect(ctx, 0, 0, SW, 12, '#0a0c18');
+  // ceiling strip
+  rect(ctx, 0, 0, SW, 24, '#0a0d1c');
 
-  // Ceiling lights (flickering dim blue-white)
-  for (let i = 0; i < 3; i++) {
-    const lx = 50 + i * 105;
-    rect(ctx, lx, 5, 30, 5, '#1c2240');
-    const g = ctx.createRadialGradient(lx+15, 10, 1, lx+15, 10, 50);
-    g.addColorStop(0, 'rgba(60,80,180,0.12)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(lx-35, 0, 100, 80);
+  // ceiling conduit runs
+  ctx.strokeStyle = '#0e1428'; ctx.lineWidth = 4;
+  for (let i = 0; i < 4; i++) {
+    const cx2 = 100 + i * 140;
+    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(cx2, 24); ctx.stroke();
   }
 
-  // Hanging cables
-  ctx.strokeStyle = '#1a2030'; ctx.lineWidth = 2;
-  for (let i = 0; i < 8; i++) {
-    const cx2 = 30 + i * 38;
-    ctx.beginPath(); ctx.moveTo(cx2, 12);
-    ctx.quadraticCurveTo(cx2 + 6, 28 + (i%3)*8, cx2 + 2, 40 + (i%2)*12);
+  // ceiling emergency light panels
+  for (let i = 0; i < 4; i++) {
+    const lx = 60 + i * 150;
+    rect(ctx, lx, 4, 70, 10, '#16203a');
+    glow(ctx, lx + 35, 14, 90, 'rgba(60,90,220,0.14)');
+  }
+
+  // Hanging cables from ceiling (damaged)
+  ctx.lineWidth = 2;
+  for (let i = 0; i < 10; i++) {
+    const cx2 = 40 + i * 60;
+    const sag = 18 + (i % 3) * 12;
+    ctx.strokeStyle = (i % 4 === 0) ? '#cc4400' : '#1a2438';
+    ctx.beginPath();
+    ctx.moveTo(cx2, 24);
+    ctx.quadraticCurveTo(cx2 + 8, 24 + sag, cx2 + 3, 24 + sag + 18);
     ctx.stroke();
+    if (i % 4 === 0) { // sparking cable
+      glow(ctx, cx2 + 3, 24 + sag + 18, 20, 'rgba(255,120,0,0.18)');
+    }
   }
 
-  // Emergency bulkheads (half-closed doors)
-  rect(ctx, 0, 68, 22, 47, '#0e1220'); rect(ctx, 0, 68, 22, 25, '#141828');
-  rect(ctx, 295, 68, 25, 47, '#0e1220'); rect(ctx, 295, 68, 25, 22, '#141828');
+  // Back wall — centre hatch to bridge (x:262,y:168,w:116,h:105 → center receding hatch)
+  rect(ctx, 262, 60, 116, 95, '#06090f');
+  rect(ctx, 268, 64, 104, 85, '#020408');
+  ctx.strokeStyle = '#1a2848'; ctx.lineWidth = 2; ctx.strokeRect(262, 60, 116, 95);
+  // hatch panel lines
+  ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(320, 64); ctx.lineTo(320, 149); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(268, 107); ctx.lineTo(372, 107); ctx.stroke();
+  // hatch indicator light
+  const blinkH = Math.floor(Date.now() / 600) % 2;
+  rect(ctx, 306, 66, 28, 5, blinkH ? '#002288' : '#00aaff');
+  // label
+  ctx.font = 'bold 9px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#1e3060'; ctx.fillText('BRIDGE — LV1', 320, 154);
 
-  // East door to bridge
-  rect(ctx, 230, 95, 35, 20, '#080e1a');
-  ctx.strokeStyle = '#1e2840'; ctx.lineWidth = 1; ctx.strokeRect(230, 95, 35, 20);
-  rect(ctx, 230, 95, 35, 3, '#1a2238');
+  // Wall ribs — perspective lines on ceiling/walls
+  ctx.strokeStyle = '#0e1428'; ctx.lineWidth = 3;
+  for (let i = 0; i < 7; i++) {
+    const t = i / 6;
+    const bx = t * SW;
+    ctx.beginPath(); ctx.moveTo(VX, HY); ctx.lineTo(bx, 0); ctx.stroke();
+  }
 
-  // Technician body on floor
+  // Bulkhead panels — left/right areas of back wall
+  for (let side = 0; side < 2; side++) {
+    const bx = side === 0 ? 62 : 450;
+    const bw = 200;
+    for (let j = 0; j < 3; j++) {
+      const py = 28 + j * 38;
+      ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1;
+      ctx.strokeRect(bx + 10, py, bw - 20, 32);
+      rect(ctx, bx + 10, py, bw - 20, 4, '#0c1428');
+    }
+  }
+
+  // Technician body on floor (near hotspot x:188, y:355)
   if (!doneActions?.search_body) {
-    rect(ctx, 88, 128, 38, 9, '#1a2035');
-    rect(ctx, 86, 126, 10, 7, '#c8a060'); // head
-    rect(ctx, 112, 130, 8, 4, '#2a3855'); // tools
+    // body
+    rect(ctx, 148, 342, 80, 22, '#1a2438');
+    // head
+    rect(ctx, 140, 335, 22, 18, '#c8a070');
+    // uniform detail
+    ctx.strokeStyle = '#263850'; ctx.lineWidth = 1; ctx.strokeRect(148, 342, 80, 22);
+    // tool belt items scattered
+    rect(ctx, 200, 358, 18, 6, '#2a3c50');
+    rect(ctx, 220, 360, 10, 4, '#1a2a40');
+    // security pass visible
+    rect(ctx, 162, 344, 12, 16, '#3a5080');
+    ctx.strokeStyle = '#6080b0'; ctx.lineWidth = 1; ctx.strokeRect(162, 344, 12, 16);
+    // pool of dark liquid
+    ctx.fillStyle = 'rgba(10,15,30,0.5)';
+    ctx.beginPath(); ctx.ellipse(175, 370, 44, 12, 0, 0, Math.PI * 2); ctx.fill();
   }
 
-  // Drone (if not defeated)
+  // Damaged drone (near hotspot x:492, y:272)
   if (!defeated?.corridor_a) {
-    rect(ctx, 243, 103, 24, 20, '#2a3040');
-    rect(ctx, 248, 97, 14, 8, '#1a2232');
-    rect(ctx, 253, 92, 4, 7, '#303850'); // antenna
-    rect(ctx, 246, 107, 7, 5, '#c03000'); // eye
-    rect(ctx, 258, 107, 7, 5, '#c03000');
+    const dx = 466, dy = 234;
+    // body
+    rect(ctx, dx, dy, 52, 42, '#2c3848');
+    rect(ctx, dx + 4, dy - 16, 44, 18, '#1e2c3c');
+    ctx.strokeStyle = '#3a4c60'; ctx.lineWidth = 1; ctx.strokeRect(dx, dy, 52, 42);
+    // red sensor eyes
+    glow(ctx, dx + 14, dy + 16, 12, 'rgba(220,30,0,0.5)');
+    glow(ctx, dx + 38, dy + 16, 12, 'rgba(220,30,0,0.5)');
+    rect(ctx, dx + 8, dy + 12, 14, 8, '#cc1000');
+    rect(ctx, dx + 30, dy + 12, 14, 8, '#cc1000');
+    // antenna
+    rect(ctx, dx + 22, dy - 28, 6, 14, '#263040');
+    rect(ctx, dx + 18, dy - 30, 14, 4, '#1e2838');
+    // damage sparks
+    glow(ctx, dx + 52, dy + 8, 18, 'rgba(255,140,0,0.25)');
+    // hover jets (damaged)
+    ctx.strokeStyle = 'rgba(100,160,255,0.2)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.ellipse(dx + 26, dy + 42, 20, 5, 0, 0, Math.PI * 2); ctx.stroke();
   }
 
-  drawFloor(ctx, '#0c0e18', '#06080e');
+  // Scrap metal item (at hotspot x:338, y:348)
+  // (drawn by hotspot overlay, just add subtle floor marking)
+  ctx.fillStyle = 'rgba(60,80,100,0.15)';
+  ctx.beginPath(); ctx.ellipse(338, 358, 28, 8, 0, 0, Math.PI * 2); ctx.fill();
 
-  drawExit(ctx, 0, 68, 22, 82);
-  drawExit(ctx, 295, 68, 25, 82);
-  drawExit(ctx, 230, 95, 35, 20, 'rgba(60,80,180,0.1)');
+  // Atmospheric effects
+  glow(ctx, 160, SH - 20, 150, 'rgba(30,50,180,0.08)');
+  glow(ctx, 480, SH - 20, 130, 'rgba(30,50,180,0.06)');
+
+  // Side exits
+  sideExit(ctx, 'left',  'rgba(50,80,200,0.5)');
+  sideExit(ctx, 'right', 'rgba(50,80,200,0.5)');
 }
 
 function drawMedBay(ctx, flags, defeated, collected, doneActions) {
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#020c08'); bg.addColorStop(1, '#010804');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+  // ── background
+  backWall(ctx, '#031208', '#010804');
+  perspFloor(ctx, '#060e05', '#030803', 'rgba(0,80,30,0.10)');
 
-  rect(ctx, 0, 0, SW, 12, '#0a1810');
-
-  // Ceiling light panels
-  for (let i = 0; i < 3; i++) {
-    const lx = 40 + i * 100;
-    rect(ctx, lx, 4, 60, 7, '#1a3020');
-    const g = ctx.createRadialGradient(lx+30, 11, 2, lx+30, 11, 55);
-    g.addColorStop(0, 'rgba(0,180,80,0.12)'); g.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = g; ctx.fillRect(lx-25, 0, 110, 80);
+  // ceiling — clinical white-green light panels
+  rect(ctx, 0, 0, SW, 24, '#0a1c10');
+  for (let i = 0; i < 4; i++) {
+    const lx = 50 + i * 148;
+    rect(ctx, lx, 3, 90, 12, '#1a3820');
+    glow(ctx, lx + 45, 15, 110, 'rgba(0,200,80,0.14)');
   }
 
-  // Medical tables
-  for (let i = 0; i < 3; i++) {
-    const tx = 40 + i * 90;
-    rect(ctx, tx, 88, 60, 28, '#0d2018');
-    rect(ctx, tx+3, 85, 54, 5, '#1a3828'); // surface
-    ctx.strokeStyle = '#1e4030'; ctx.lineWidth = 1; ctx.strokeRect(tx, 88, 60, 28);
+  // back wall — sterile white panelling
+  rect(ctx, 62, 24, SW - 124, HY - 24, '#050f08');
+  // wall grid / panels
+  ctx.strokeStyle = '#0c2015'; ctx.lineWidth = 1;
+  for (let x2 = 100; x2 < SW - 100; x2 += 90) {
+    ctx.beginPath(); ctx.moveTo(x2, 24); ctx.lineTo(x2, HY); ctx.stroke();
+  }
+  for (let y2 = 45; y2 < HY; y2 += 35) {
+    ctx.beginPath(); ctx.moveTo(62, y2); ctx.lineTo(SW - 62, y2); ctx.stroke();
   }
 
-  // Patient chart screen (on wall)
-  rect(ctx, 175, 55, 65, 45, '#0a1810');
-  rect(ctx, 177, 57, 61, 41, '#03140a');
-  ctx.strokeStyle = '#00c060'; ctx.lineWidth = 1; ctx.strokeRect(177, 57, 61, 41);
-  // Text lines on screen
-  ctx.fillStyle = '#00c060';
-  for (let i = 0; i < 5; i++) {
-    const lw = [35, 45, 28, 50, 32][i];
-    ctx.fillRect(180, 62 + i*7, lw, 2);
+  // Patient chart screen (near hotspot x:428, y:228 → on back wall area)
+  rect(ctx, 370, 38, 100, 72, '#080f0a');
+  rect(ctx, 374, 42, 92, 64, '#020a05');
+  ctx.strokeStyle = '#00c060'; ctx.lineWidth = 2; ctx.strokeRect(374, 42, 92, 64);
+  glow(ctx, 420, 74, 55, 'rgba(0,180,60,0.12)');
+  // text lines on screen
+  ctx.fillStyle = '#00b050';
+  for (let i = 0; i < 6; i++) {
+    const lw = [56, 72, 44, 80, 50, 64][i];
+    ctx.fillRect(378, 47 + i * 9, lw, 3);
   }
-  // Chart highlight (player name line)
-  rect(ctx, 180, 62, 40, 2, '#ff4400');
+  // YOUR NAME line highlighted red
+  rect(ctx, 378, 47, 56, 3, '#ff4400');
+  glow(ctx, 406, 50, 22, 'rgba(255,80,0,0.2)');
+  // screen label
+  ctx.font = '8px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillStyle = '#0a2010'; ctx.fillText('PATIENT CHART', 420, 108);
 
-  // Surgical equipment on floor
-  rect(ctx, 55, 118, 16, 12, '#1c3028');
-  rect(ctx, 130, 120, 24, 8, '#1a2c22');
-  rect(ctx, 215, 118, 18, 10, '#1c3028');
+  // Medical supply cabinet (left wall area)
+  rect(ctx, 80, 35, 80, 110, '#050e08');
+  ctx.strokeStyle = '#0c2015'; ctx.lineWidth = 1; ctx.strokeRect(80, 35, 80, 110);
+  for (let shelf = 0; shelf < 3; shelf++) {
+    rect(ctx, 83, 68 + shelf * 28, 74, 3, '#0c2015');
+    // items on shelf
+    for (let item = 0; item < 3; item++) {
+      rect(ctx, 86 + item * 22, 54 + shelf * 28, 14, 12, '#081808');
+      ctx.strokeStyle = '#1a4025'; ctx.lineWidth = 1; ctx.strokeRect(86 + item * 22, 54 + shelf * 28, 14, 12);
+    }
+  }
 
-  drawFloor(ctx, '#081408', '#040c04');
+  // Medical examination tables — 3, in perspective (receding toward back wall)
+  const tableSpecs = [
+    { x: 120, y: HY + 55, w: 100, h: 40, ht: 18 },  // near-left
+    { x: 270, y: HY + 40, w: 88,  h: 36, ht: 14 },  // mid-center
+    { x: 460, y: HY + 45, w: 90,  h: 36, ht: 15 },  // mid-right
+  ];
+  for (const t of tableSpecs) {
+    // legs
+    ctx.fillStyle = '#0a1c10';
+    ctx.fillRect(t.x + 6, t.y + t.h, 8, t.ht);
+    ctx.fillRect(t.x + t.w - 14, t.y + t.h, 8, t.ht);
+    // table surface
+    rect(ctx, t.x, t.y, t.w, t.h, '#0c2018');
+    rect(ctx, t.x, t.y, t.w, 6, '#182c20'); // top edge
+    ctx.strokeStyle = '#1e4030'; ctx.lineWidth = 1; ctx.strokeRect(t.x, t.y, t.w, t.h);
+    // sheet/patient indicator
+    ctx.fillStyle = 'rgba(200,220,210,0.04)'; ctx.fillRect(t.x + 4, t.y + 6, t.w - 8, t.h - 10);
+  }
 
-  drawExit(ctx, 0, 68, 22, 82);
-  drawExit(ctx, 295, 68, 25, 82, 'rgba(0,180,80,0.12)');
+  // Surgical tray on floor near left table
+  rect(ctx, 112, SH - 80, 40, 20, '#0c1c14');
+  ctx.strokeStyle = '#1a3020'; ctx.lineWidth = 1; ctx.strokeRect(112, SH - 80, 40, 20);
+  for (let i = 0; i < 4; i++) rect(ctx, 115 + i * 9, SH - 77, 6, 14, '#0a1810');
+
+  // Med stim / ration pack / data chip items — floor shadows (hotspots at y:342)
+  const itemGlows = [
+    { x: 162, col: 'rgba(0,200,60,0.12)' },
+    { x: 332, col: 'rgba(80,180,255,0.10)' },
+    { x: 502, col: 'rgba(200,140,0,0.10)' },
+  ];
+  for (const ig of itemGlows) {
+    ctx.fillStyle = ig.col;
+    ctx.beginPath(); ctx.ellipse(ig.x, 352, 26, 8, 0, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // Atmospheric lighting
+  glow(ctx, 320, HY + 80, 200, 'rgba(0,120,40,0.06)');
+
+  sideExit(ctx, 'left',  'rgba(40,180,80,0.45)');
+  sideExit(ctx, 'right', 'rgba(40,180,80,0.45)');
 }
 
 function drawAiCore(ctx, flags, defeated, collected, doneActions) {
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#0c0500'); bg.addColorStop(1, '#060200');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+  const t2 = Date.now();
+  const pulse = 0.5 + Math.sin(t2 * 0.002) * 0.3;
 
-  rect(ctx, 0, 0, SW, 12, '#180a00');
+  backWall(ctx, '#150800', '#080300');
+  perspFloor(ctx, '#100600', '#070300', 'rgba(150,60,0,0.10)');
 
-  // Server racks on sides
+  // ceiling
+  rect(ctx, 0, 0, SW, 24, '#1c0a00');
+  // processing array cables from ceiling to center
+  ctx.strokeStyle = '#2a1200'; ctx.lineWidth = 2;
+  for (let i = 0; i < 8; i++) {
+    const cx2 = 80 + i * 70;
+    ctx.beginPath(); ctx.moveTo(cx2, 0); ctx.lineTo(VX, HY - 30); ctx.stroke();
+  }
+  // ceiling glow from ARIA
+  glow(ctx, VX, 0, 180, `rgba(255,130,0,${0.12 * pulse})`);
+
+  // server racks — left bank
   for (let side = 0; side < 2; side++) {
-    const rx = side === 0 ? 15 : 225;
-    const rw = 60;
-    rect(ctx, rx, 20, rw, 95, '#0e0800');
-    ctx.strokeStyle = '#201000'; ctx.lineWidth = 1; ctx.strokeRect(rx, 20, rw, 95);
-    // LED strips
-    for (let i = 0; i < 8; i++) {
-      const ly = 25 + i * 11;
-      const on = (i + Math.floor(Date.now()/800)) % 5 !== 0;
-      rect(ctx, rx+4, ly, rw-8, 3, on ? '#403000' : '#1a1000');
-      if (on) {
-        ctx.fillStyle = 'rgba(200,120,0,0.2)';
-        ctx.fillRect(rx+4, ly-1, rw-8, 5);
+    const rx = side === 0 ? 62 : SW - 62 - 100;
+    const rw = 100, rh = HY - 30;
+    rect(ctx, rx, 26, rw, rh, '#0e0800');
+    ctx.strokeStyle = '#251200'; ctx.lineWidth = 1; ctx.strokeRect(rx, 26, rw, rh);
+    // rack units
+    for (let u = 0; u < 8; u++) {
+      const uy = 30 + u * (rh / 8);
+      rect(ctx, rx + 3, uy, rw - 6, rh / 8 - 2, '#0c0700');
+      ctx.strokeStyle = '#1e0e00'; ctx.lineWidth = 1; ctx.strokeRect(rx + 3, uy, rw - 6, rh / 8 - 2);
+      // LED indicators
+      const tick = Math.floor(t2 / 600 + u * 0.7) % 5;
+      for (let led = 0; led < 5; led++) {
+        const ledOn = led !== tick;
+        rect(ctx, rx + 6 + led * 12, uy + 4, 8, 5,
+          ledOn ? (led === 2 ? '#ff6600' : '#604000') : '#1a0e00');
+        if (ledOn && led === 2) glow(ctx, rx + 10 + led * 12, uy + 6, 10, 'rgba(255,100,0,0.3)');
       }
     }
   }
 
-  // Processing arrays — ceiling
-  ctx.strokeStyle = '#2a1400'; ctx.lineWidth = 1;
-  for (let i = 0; i < 6; i++) {
-    ctx.beginPath(); ctx.moveTo(70 + i*32, 12); ctx.lineTo(160, 50); ctx.stroke();
-  }
+  // Central ARIA terminal pedestal (hotspot at x:320, y:288)
+  // Pedestal base
+  rect(ctx, 284, HY + 50, 72, 88, '#1a0c00');
+  rect(ctx, 288, HY + 54, 64, 80, '#120800');
+  ctx.strokeStyle = `rgba(255,140,0,${0.4 * pulse})`; ctx.lineWidth = 2;
+  ctx.strokeRect(284, HY + 50, 72, 88);
 
-  // ARIA core module — center glow
-  const t2 = Date.now();
-  const pulse = 0.5 + Math.sin(t2 * 0.002) * 0.3;
-  const cg = ctx.createRadialGradient(160, 100, 5, 160, 100, 45);
-  cg.addColorStop(0, `rgba(255,160,0,${0.35 * pulse})`);
-  cg.addColorStop(0.5, `rgba(200,80,0,${0.12 * pulse})`);
+  // Holographic ARIA core module on pedestal top
+  const cg = ctx.createRadialGradient(VX, HY + 46, 4, VX, HY + 46, 50);
+  cg.addColorStop(0, `rgba(255,170,0,${0.5 * pulse})`);
+  cg.addColorStop(0.4, `rgba(200,80,0,${0.18 * pulse})`);
   cg.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = cg; ctx.fillRect(115, 55, 90, 90);
+  ctx.fillStyle = cg; ctx.fillRect(VX - 50, HY, 100, 96);
 
-  // Core device
-  rect(ctx, 148, 90, 24, 18, '#2a1800');
-  rect(ctx, 150, 92, 20, 14, '#401c00');
-  ctx.strokeStyle = `rgba(255,150,0,${0.6 * pulse})`; ctx.lineWidth = 1;
-  ctx.strokeRect(148, 90, 24, 18);
-  rect(ctx, 156, 96, 8, 6, `rgba(255,180,0,${0.8 * pulse})`);
+  // Core device body
+  rect(ctx, 304, HY + 22, 32, 28, '#2a1800');
+  rect(ctx, 308, HY + 26, 24, 20, '#401c00');
+  ctx.strokeStyle = `rgba(255,160,0,${0.8 * pulse})`; ctx.lineWidth = 2;
+  ctx.strokeRect(304, HY + 22, 32, 28);
+  // core crystal
+  rect(ctx, 314, HY + 32, 12, 8, `rgba(255,200,0,${pulse})`);
+  glow(ctx, VX, HY + 36, 24, `rgba(255,180,0,${0.6 * pulse})`);
 
-  // Terminal
-  rect(ctx, 132, 68, 56, 22, '#100800');
-  rect(ctx, 134, 70, 52, 18, '#060300');
-  ctx.strokeStyle = `rgba(200,100,0,${0.5})`; ctx.lineWidth = 1; ctx.strokeRect(132, 68, 56, 22);
-  ctx.fillStyle = `rgba(200,100,0,0.4)`;
-  for (let i = 0; i < 3; i++) ctx.fillRect(137, 73 + i*5, 25 + (i*8)%18, 2);
+  // Terminal screen above pedestal
+  rect(ctx, 256, 52, 128, 80, '#120900');
+  rect(ctx, 260, 56, 120, 72, '#080400');
+  ctx.strokeStyle = `rgba(200,100,0,0.6)`; ctx.lineWidth = 2; ctx.strokeRect(256, 52, 128, 80);
+  ctx.fillStyle = `rgba(200,100,0,${0.4 * pulse})`;
+  const lines = ['ARIA SUBSYSTEM', '> EMERGENCY ACTIVE', '> DETECTING...', '> ...who\'s there?'];
+  ctx.font = '9px "Courier New",monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  lines.forEach((l, i) => { ctx.fillStyle = `rgba(${i===3?'255,220,0':'200,100,0'},${0.7 * pulse})`; ctx.fillText(l, 264, 60 + i * 16); });
+  glow(ctx, VX, 92, 70, `rgba(200,80,0,${0.10 * pulse})`);
 
-  drawFloor(ctx, '#100800', '#080400');
+  // Floor glow
+  glow(ctx, VX, SH - 40, 200, `rgba(200,80,0,${0.10 * pulse})`);
 
-  drawExit(ctx, 295, 68, 25, 82, 'rgba(200,80,0,0.1)');
-  drawExit(ctx, 0, 68, 22, 82);
+  sideExit(ctx, 'left',  'rgba(180,80,0,0.45)');
+  sideExit(ctx, 'right', 'rgba(60,100,200,0.45)');
 }
 
-function drawBridge(ctx, flags, defeated, collected, doneActions) {
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#010510'); bg.addColorStop(1, '#010308');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+function drawBridge(ctx, _flags, defeated, _collected, doneActions) {
+  backWall(ctx, '#080d1e', '#030510');
+  perspFloor(ctx, '#060810', '#03050c', 'rgba(20,40,140,0.12)');
 
-  rect(ctx, 0, 0, SW, 12, '#060c1e');
+  rect(ctx, 0, 0, SW, 24, '#06091c');
 
-  // Main viewport — stars
-  rect(ctx, 55, 14, 210, 80, '#010208');
-  ctx.strokeStyle = '#1a2440'; ctx.lineWidth = 2; ctx.strokeRect(55, 14, 210, 80);
+  // Main viewport — large panoramic window spanning back wall
+  rect(ctx, 100, 10, 440, 122, '#010208');
+  ctx.strokeStyle = '#1e2e58'; ctx.lineWidth = 3; ctx.strokeRect(100, 10, 440, 122);
+  // viewport frame dividers
+  ctx.strokeStyle = '#141e40'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(320, 10); ctx.lineTo(320, 132); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(100, 66); ctx.lineTo(540, 66); ctx.stroke();
+
   // Star field
-  const starSeed = [37,89,142,203,17,256,301,178,63,228,94,315,150,55,270,120,45,190];
+  const starSeed = [37,89,142,203,17,256,301,178,63,228,94,315,150,55,270,120,45,190,
+                    88,165,240,312,14,200,350,420,78,190,270,380,52,130,210,290,410];
   ctx.fillStyle = '#ffffff';
   starSeed.forEach((s, i) => {
-    const sx = 58 + (s * 17 + i * 31) % 204;
-    const sy = 16 + (s * 7 + i * 13) % 76;
-    ctx.fillRect(sx, sy, (i % 3 === 0) ? 2 : 1, (i % 3 === 0) ? 2 : 1);
+    const sx = 103 + (s * 17 + i * 31) % 434;
+    const sy = 13 + (s * 7 + i * 13) % 116;
+    ctx.fillRect(sx, sy, (i % 4 === 0) ? 2 : 1, (i % 4 === 0) ? 2 : 1);
   });
-  // Hull breach glow through viewport
-  ctx.fillStyle = 'rgba(80,120,255,0.06)'; ctx.fillRect(55, 14, 210, 80);
-  // Distant nebula
-  const ng = ctx.createRadialGradient(200, 55, 5, 200, 55, 40);
-  ng.addColorStop(0, 'rgba(80,20,120,0.15)'); ng.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = ng; ctx.fillRect(160, 15, 100, 78);
+  // nebula
+  const ng = ctx.createRadialGradient(390, 55, 8, 390, 55, 70);
+  ng.addColorStop(0, 'rgba(80,20,180,0.2)'); ng.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = ng; ctx.fillRect(320, 10, 220, 122);
+  // blue nebula secondary
+  const ng2 = ctx.createRadialGradient(180, 80, 5, 180, 80, 50);
+  ng2.addColorStop(0, 'rgba(0,60,200,0.15)'); ng2.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = ng2; ctx.fillRect(100, 10, 220, 122);
+  // Hull breach — visible through right side of viewport
+  glow(ctx, 520, 50, 60, 'rgba(100,150,255,0.12)');
+  // crack lines on viewport glass
+  ctx.strokeStyle = 'rgba(180,210,255,0.25)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(340, 10); ctx.lineTo(322, 44); ctx.lineTo(308, 70); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(322, 44); ctx.lineTo(340, 66); ctx.stroke();
 
-  // Damage cracks on viewport
-  ctx.strokeStyle = 'rgba(200,220,255,0.2)'; ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(185, 14); ctx.lineTo(175, 38); ctx.lineTo(168, 55); ctx.stroke();
+  // Planet — distant, partially visible
+  ctx.fillStyle = 'rgba(30,60,140,0.35)';
+  ctx.beginPath(); ctx.arc(155, 95, 38, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(50,80,180,0.2)';
+  ctx.beginPath(); ctx.arc(155, 95, 38, 0, Math.PI * 2); ctx.fill();
+  glow(ctx, 135, 80, 30, 'rgba(60,100,220,0.15)');
 
-  // Control consoles
-  for (let i = 0; i < 3; i++) {
-    const cx2 = 30 + i * 100;
-    rect(ctx, cx2, 98, 70, 20, '#080e1e');
-    rect(ctx, cx2+3, 96, 64, 5, '#0e1828');
-    ctx.strokeStyle = '#162238'; ctx.lineWidth = 1; ctx.strokeRect(cx2, 98, 70, 20);
-    // Screen glow
-    ctx.fillStyle = 'rgba(0,80,200,0.12)'; ctx.fillRect(cx2+5, 100, 60, 12);
-    // Status lights
-    for (let j = 0; j < 4; j++) {
-      rect(ctx, cx2+7+j*12, 103, 6, 4, j===1?'#cc4400':'#002244');
+  // Life-support / system readouts on side walls
+  for (let side = 0; side < 2; side++) {
+    const sx = side === 0 ? 62 : SW - 100;
+    rect(ctx, sx, 25, 36, HY - 28, '#06090e');
+    ctx.strokeStyle = '#0e1830'; ctx.lineWidth = 1; ctx.strokeRect(sx, 25, 36, HY - 28);
+    for (let j = 0; j < 5; j++) {
+      const col = j === 1 ? '#cc2200' : j === 3 ? '#aa4400' : '#002244';
+      rect(ctx, sx + 4, 30 + j * 24, 28, 16, col);
+      ctx.fillStyle = j === 1 ? 'rgba(255,30,0,0.4)' : 'rgba(0,60,180,0.2)';
+      ctx.fillRect(sx + 4, 30 + j * 24, 28, 16);
     }
   }
 
-  // Blinking message indicator
+  // Main control consoles — curving bank in perspective
+  const consoles = [
+    { x: 90,  y: HY + 28, w: 110, h: 50 },
+    { x: 220, y: HY + 18, w: 90,  h: 44 },
+    { x: 330, y: HY + 18, w: 90,  h: 44 },
+    { x: 440, y: HY + 28, w: 110, h: 50 },
+  ];
+  for (const c of consoles) {
+    rect(ctx, c.x, c.y, c.w, c.h, '#080c1c');
+    rect(ctx, c.x, c.y, c.w, 8, '#0c1228');
+    ctx.strokeStyle = '#162040'; ctx.lineWidth = 1; ctx.strokeRect(c.x, c.y, c.w, c.h);
+    ctx.fillStyle = 'rgba(0,60,200,0.10)'; ctx.fillRect(c.x + 4, c.y + 10, c.w - 8, c.h - 18);
+    // status lights
+    for (let j = 0; j < 5; j++) {
+      const col = j === 1 ? '#cc3300' : j === 3 ? '#003388' : '#001a44';
+      rect(ctx, c.x + 6 + j * (c.w - 12) / 5, c.y + 14, 14, 6, col);
+    }
+  }
+
+  // Navigation console with blinking alert (hotspot x:542, y:282)
+  rect(ctx, 490, HY + 40, 88, 80, '#060a16');
+  rect(ctx, 494, HY + 44, 80, 68, '#020508');
+  ctx.strokeStyle = '#1a2850'; ctx.lineWidth = 2; ctx.strokeRect(490, HY + 40, 88, 80);
+  ctx.fillStyle = 'rgba(0,80,200,0.12)'; ctx.fillRect(494, HY + 44, 80, 68);
   if (!doneActions?.read_message) {
     const blink = Math.floor(Date.now() / 500) % 2;
-    rect(ctx, 248, 113, 10, 6, blink ? '#00aaff' : '#002244');
+    glow(ctx, 534, HY + 68, blink ? 30 : 8, 'rgba(0,180,255,0.5)');
+    rect(ctx, 520, HY + 56, 28, 12, blink ? '#00aaff' : '#003366');
+    ctx.font = '7px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillStyle = blink ? '#aaddff' : '#003366'; ctx.fillText('MSG', 534, HY + 70);
   }
 
-  // Defense system (if not defeated)
+  // Defense system (hotspot x:358, y:262)
   if (!defeated?.bridge) {
-    rect(ctx, 170, 95, 20, 18, '#1a2030');
-    rect(ctx, 174, 92, 12, 6, '#202838');
-    rect(ctx, 178, 88, 4, 6, '#303848'); // barrel
-    ctx.strokeStyle = '#cc2020'; ctx.lineWidth = 1; ctx.strokeRect(170, 95, 20, 18);
+    const dx = 334, dy = 218;
+    // turret base
+    rect(ctx, dx, dy + 22, 48, 28, '#1a2030');
+    // turret body
+    rect(ctx, dx + 8, dy + 8, 32, 20, '#202838');
+    ctx.strokeStyle = '#cc2020'; ctx.lineWidth = 2; ctx.strokeRect(dx + 8, dy + 8, 32, 20);
+    // barrel
+    rect(ctx, dx + 20, dy - 8, 8, 18, '#303848');
+    // targeting laser (faint red beam)
+    glow(ctx, dx + 24, dy - 8, 20, 'rgba(255,0,0,0.2)');
+    // red eye sensor
+    glow(ctx, dx + 24, dy + 16, 10, 'rgba(255,20,0,0.6)');
+    rect(ctx, dx + 18, dy + 12, 12, 6, '#cc0000');
   }
 
-  drawFloor(ctx, '#06080e', '#03040a');
+  // Atmospheric blue glow on floor
+  glow(ctx, VX, SH - 30, 220, 'rgba(20,50,180,0.08)');
 
-  drawExit(ctx, 0, 68, 22, 82);
+  sideExit(ctx, 'left', 'rgba(50,80,200,0.5)');
 }
 
-function drawEngineering(ctx, flags, defeated, collected, doneActions) {
-  const bg = ctx.createLinearGradient(0, 0, 0, SH);
-  bg.addColorStop(0, '#100300'); bg.addColorStop(1, '#060100');
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, SW, SH);
+function drawEngineering(ctx, _flags, defeated, collected, _doneActions) {
+  backWall(ctx, '#1c0500', '#0c0200');
+  perspFloor(ctx, '#140400', '#090200', 'rgba(180,60,0,0.10)');
 
-  rect(ctx, 0, 0, SW, 12, '#1e0800');
+  rect(ctx, 0, 0, SW, 24, '#200700');
 
-  // Engine glow at back wall
-  const eg = ctx.createRadialGradient(160, 85, 10, 160, 85, 120);
-  eg.addColorStop(0, 'rgba(255,100,0,0.22)'); eg.addColorStop(0.4, 'rgba(200,50,0,0.10)'); eg.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.fillStyle = eg; ctx.fillRect(0, 0, SW, SH);
+  // Engine glow — large radial bloom from back wall center
+  glow(ctx, VX, 60, 280, 'rgba(255,100,0,0.18)');
+  glow(ctx, VX, HY, 160, 'rgba(255,60,0,0.10)');
 
-  // Engine housing back wall
-  rect(ctx, 80, 25, 160, 90, '#120600');
-  ctx.strokeStyle = '#2a0e00'; ctx.lineWidth = 1; ctx.strokeRect(80, 25, 160, 90);
+  // Ceiling pipes
+  ctx.strokeStyle = '#2a0e00'; ctx.lineWidth = 4;
+  for (let i = 0; i < 4; i++) {
+    const px = 90 + i * 150;
+    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, 24); ctx.stroke();
+  }
+  ctx.strokeStyle = '#1e0800'; ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.moveTo(0, 14); ctx.lineTo(SW, 14); ctx.stroke();
+  // burst sparks from damaged pipe
+  glow(ctx, 400, 24, 24, 'rgba(255,140,0,0.3)');
 
-  // Engine rings
-  for (let i = 0; i < 3; i++) {
-    const ey = 35 + i * 25;
-    const er = 25 - i * 3;
-    ctx.strokeStyle = `rgba(255,${80+i*30},0,0.4)`; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.ellipse(160, ey+5, er, Math.round(er*0.4), 0, 0, Math.PI*2); ctx.stroke();
-    ctx.fillStyle = `rgba(255,${60+i*20},0,0.08)`;
-    ctx.beginPath(); ctx.ellipse(160, ey+5, er, Math.round(er*0.4), 0, 0, Math.PI*2); ctx.fill();
+  // Engine housing — large central structure on back wall
+  rect(ctx, 160, 12, 320, HY - 12, '#120600');
+  ctx.strokeStyle = '#2a0e00'; ctx.lineWidth = 2; ctx.strokeRect(160, 12, 320, HY - 12);
+  // engine core rings (nested ellipses — perspective)
+  for (let i = 0; i < 4; i++) {
+    const er = 60 - i * 12;
+    const ea = Math.round(er * 0.45);
+    ctx.strokeStyle = `rgba(255,${70 + i * 30},0,${0.5 - i * 0.08})`; ctx.lineWidth = 3 - i * 0.5;
+    ctx.beginPath(); ctx.ellipse(VX, 72, er, ea, 0, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = `rgba(255,${50 + i * 20},0,${0.06 - i * 0.01})`;
+    ctx.beginPath(); ctx.ellipse(VX, 72, er, ea, 0, 0, Math.PI * 2); ctx.fill();
+  }
+  // core center pulse
+  const eng_pulse = 0.5 + Math.sin(Date.now() * 0.003) * 0.3;
+  glow(ctx, VX, 72, 35, `rgba(255,180,0,${0.4 * eng_pulse})`);
+  rect(ctx, VX - 8, 64, 16, 16, `rgba(255,220,0,${0.7 * eng_pulse})`);
+
+  // Side machinery on back wall
+  for (let side = 0; side < 2; side++) {
+    const mx = side === 0 ? 62 : SW - 162;
+    rect(ctx, mx, 18, 100, HY - 20, '#0e0500');
+    ctx.strokeStyle = '#1e0a00'; ctx.lineWidth = 1; ctx.strokeRect(mx, 18, 100, HY - 20);
+    for (let j = 0; j < 4; j++) {
+      rect(ctx, mx + 6, 24 + j * 30, 88, 22, '#0c0400');
+      ctx.strokeStyle = '#200c00'; ctx.lineWidth = 1; ctx.strokeRect(mx + 6, 24 + j * 30, 88, 22);
+      // valve / gauge
+      ctx.fillStyle = 'rgba(255,80,0,0.2)'; ctx.beginPath();
+      ctx.arc(mx + 50, 35 + j * 30, 8, 0, Math.PI * 2); ctx.fill();
+    }
   }
 
-  // Escape pod doors
-  // Left pod (empty — gone)
-  rect(ctx, 18, 62, 48, 55, '#100800');
-  ctx.strokeStyle = '#1e1000'; ctx.lineWidth = 1; ctx.strokeRect(18, 62, 48, 55);
-  rect(ctx, 25, 68, 34, 43, '#080400'); // open/empty
-  ctx.fillStyle = '#402000'; ctx.font = '7px monospace'; ctx.textAlign = 'center'; ctx.fillText('EMPTY', 42, 95);
+  // Escape pod bays (left and right of center, on floor-level)
+  // Left pod — empty (bay open, pod gone)
+  const lp = { x: 62, y: HY + 20, w: 130, h: 200 };
+  rect(ctx, lp.x, lp.y, lp.w, lp.h, '#0e0600');
+  rect(ctx, lp.x + 4, lp.y + 4, lp.w - 8, lp.h - 8, '#060200');
+  ctx.strokeStyle = '#1e0e00'; ctx.lineWidth = 2; ctx.strokeRect(lp.x, lp.y, lp.w, lp.h);
+  ctx.font = 'bold 10px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#3a1800'; ctx.fillText('BAY 1 — EMPTY', lp.x + lp.w / 2, lp.y + lp.h / 2);
 
-  // Right pod (intact, sealed)
-  rect(ctx, 255, 62, 48, 55, '#1a1000');
-  rect(ctx, 257, 64, 44, 51, '#120a00');
-  ctx.strokeStyle = '#402000'; ctx.lineWidth = 1; ctx.strokeRect(255, 62, 48, 55);
-  rect(ctx, 278, 66, 6, 12, '#ffaa00'); // fuel indicator (empty/red if no fuel)
-  if (!collected?.fuel_cell) rect(ctx, 278, 66, 6, 12, '#3a0000');
+  // Right pod — intact (near hotspot x:198, y:302 is launch_pod action)
+  const rp = { x: 448, y: HY + 20, w: 130, h: 200 };
+  rect(ctx, rp.x, rp.y, rp.w, rp.h, '#1a0e00');
+  rect(ctx, rp.x + 4, rp.y + 4, rp.w - 8, rp.h - 8, '#100800');
+  ctx.strokeStyle = '#3a1800'; ctx.lineWidth = 2; ctx.strokeRect(rp.x, rp.y, rp.w, rp.h);
+  // pod interior
+  ctx.fillStyle = 'rgba(60,30,0,0.3)'; ctx.fillRect(rp.x + 4, rp.y + 4, rp.w - 8, rp.h - 8);
+  // pilot seat outline
+  rect(ctx, rp.x + 38, rp.y + 80, 54, 80, '#0e0800');
+  ctx.strokeStyle = '#281400'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 38, rp.y + 80, 54, 80);
+  // fuel indicator (right side of pod)
+  const fuelOk = collected?.fuel_cell;
+  rect(ctx, rp.x + 8, rp.y + 20, 18, 50, '#0c0600');
+  rect(ctx, rp.x + 10, rp.y + 22, 14, fuelOk ? 46 : 6, fuelOk ? '#ffaa00' : '#3a0000');
+  ctx.strokeStyle = '#2a1000'; ctx.lineWidth = 1; ctx.strokeRect(rp.x + 8, rp.y + 20, 18, 50);
+  glow(ctx, rp.x + 15, rp.y + 45, fuelOk ? 22 : 8, fuelOk ? 'rgba(255,180,0,0.3)' : 'rgba(180,0,0,0.2)');
+  // launch-ready label
+  ctx.font = 'bold 10px "Courier New",monospace'; ctx.textAlign = 'center'; ctx.fillStyle = fuelOk ? '#ffaa00' : '#3a1800';
+  ctx.fillText(fuelOk ? 'READY TO LAUNCH' : 'BAY 2 — NO FUEL', rp.x + rp.w / 2, rp.y + 10);
 
-  // Broken pipes / sparks on ceiling
-  ctx.strokeStyle = '#2a1400'; ctx.lineWidth = 2;
-  for (let i = 0; i < 5; i++) {
-    ctx.beginPath(); ctx.moveTo(45 + i*55, 12); ctx.lineTo(38+i*55, 35+i%2*10); ctx.stroke();
-  }
-
-  // Guard (if not defeated)
+  // Guard (hotspot x:428, y:268)
   if (!defeated?.engineering) {
-    // Simple guard silhouette
-    rect(ctx, 192, 97, 14, 22, '#1e3855'); // body
-    rect(ctx, 193, 92, 12, 7, '#c8a060'); // head
-    rect(ctx, 190, 100, 4, 10, '#1e3855'); // left arm
-    rect(ctx, 206, 100, 4, 10, '#1e3855'); // right arm
-    rect(ctx, 193, 119, 5, 10, '#142840'); // legs
-    rect(ctx, 200, 119, 5, 10, '#142840');
+    const gx = 404, gy = 220;
+    // body armor
+    rect(ctx, gx, gy + 24, 46, 54, '#1e3c5a');
+    // shoulder pads
+    rect(ctx, gx - 8, gy + 28, 14, 30, '#162e48');
+    rect(ctx, gx + 40, gy + 28, 14, 30, '#162e48');
+    // head/helmet
+    rect(ctx, gx + 6, gy, 34, 26, '#c8a870');
+    rect(ctx, gx + 4, gy + 2, 38, 14, '#1a2e44'); // visor
+    ctx.strokeStyle = '#243e5a'; ctx.lineWidth = 1; ctx.strokeRect(gx + 4, gy + 2, 38, 14);
+    // legs
+    rect(ctx, gx + 4, gy + 78, 16, 30, '#142840');
+    rect(ctx, gx + 26, gy + 78, 16, 30, '#142840');
     // Nexus Corp badge
-    rect(ctx, 194, 104, 5, 4, '#cc3300');
-    ctx.strokeStyle = '#cc3300'; ctx.lineWidth = 1; ctx.strokeRect(192, 97, 14, 22);
+    rect(ctx, gx + 14, gy + 32, 18, 12, '#cc2200');
+    ctx.strokeStyle = '#ee3300'; ctx.lineWidth = 1; ctx.strokeRect(gx + 14, gy + 32, 18, 12);
+    ctx.font = '7px monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#ff5500';
+    ctx.fillText('NXS', gx + 23, gy + 40);
+    // weapon
+    rect(ctx, gx - 16, gy + 34, 14, 6, '#2a3c50');
+    rect(ctx, gx - 20, gy + 35, 6, 4, '#1a2c3e');
+    ctx.strokeStyle = '#cc2200'; ctx.lineWidth = 1; ctx.strokeRect(gx - 16, gy + 34, 14, 6);
+    glow(ctx, gx + 23, gy + 12, 22, 'rgba(200,30,0,0.15)');
   }
 
-  drawFloor(ctx, '#120500', '#080200');
+  // Fuel cell item floor shadow (hotspot x:168, y:342)
+  ctx.fillStyle = 'rgba(255,160,0,0.08)';
+  ctx.beginPath(); ctx.ellipse(168, 352, 24, 7, 0, 0, Math.PI * 2); ctx.fill();
 
-  drawExit(ctx, 295, 68, 25, 82, 'rgba(180,80,0,0.12)');
+  // Atmospheric engine heat shimmer / orange floor glow
+  glow(ctx, VX, SH - 20, 260, 'rgba(200,80,0,0.08)');
+
+  sideExit(ctx, 'right', 'rgba(180,80,0,0.5)');
 }
 
 function drawScene(ctx, locId, state) {
@@ -548,9 +883,10 @@ function drawScene(ctx, locId, state) {
 // ═══════════════════════════════════════════════════════
 
 function drawCharSprite(ctx, x, y, dir, frame, walking) {
-  const sc = 0.58 + (y - 100) / (145 - 100) * 0.48;
-  const bw = Math.round(10 * sc);
-  const bh = Math.round(22 * sc);
+  // scale from 0.25 (far/horizon) to 1.0 (near/bottom)
+  const sc = 0.25 + Math.max(0, Math.min(1, (y - 160) / (380 - 160))) * 0.75;
+  const bw = Math.round(20 * sc);
+  const bh = Math.round(44 * sc);
   const lx = Math.round(x - bw / 2);
   const by = Math.round(y - bh);
 
@@ -657,14 +993,14 @@ function drawHotspots(ctx, locId, state) {
   // Location name overlay
   const loc = LOCS[locId];
   if (loc) {
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(0, 0, SW, 18);
-    ctx.font = 'bold 8px "Courier New", monospace';
+    ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0, 0, SW, 32);
+    ctx.font = 'bold 14px "Courier New", monospace';
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
     ctx.fillStyle = loc.color || '#e2eaf5';
-    ctx.fillText(loc.name.toUpperCase(), 6, 5);
-    ctx.font = '6px "Courier New", monospace';
+    ctx.fillText(loc.name.toUpperCase(), 10, 6);
+    ctx.font = '11px "Courier New", monospace';
     ctx.fillStyle = 'rgba(180,200,220,0.5)';
-    ctx.fillText(loc.area, 6, 11);
+    ctx.fillText(loc.area, 10, 18);
   }
 }
 
@@ -674,7 +1010,7 @@ function drawHotspots(ctx, locId, state) {
 
 function SceneCanvas({ locId, flags, defeated, collected, doneActions, onNavigate, onPickup, onStartCombat, onActionById }) {
   const canvasRef = useRef(null);
-  const charRef = useRef({ x: 80, y: 132, tx: null, ty: null, dir: 'right', frame: 0, ft: 0, walking: false });
+  const charRef = useRef({ x: 160, y: 350, tx: null, ty: null, dir: 'right', frame: 0, ft: 0, walking: false });
   const stateRef = useRef({ locId, flags, defeated, collected, doneActions });
   const rafRef = useRef(null);
 
@@ -701,7 +1037,7 @@ function SceneCanvas({ locId, flags, defeated, collected, doneActions, onNavigat
       if (c.tx !== null) {
         const dx = c.tx - c.x, dy = c.ty - c.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        const speed = 2.2 * dt / 16;
+        const speed = 4.5 * dt / 16;
         if (dist < speed + 0.5) {
           c.x = c.tx; c.y = c.ty; c.tx = null; c.ty = null; c.walking = false;
         } else {
@@ -763,15 +1099,15 @@ function SceneCanvas({ locId, flags, defeated, collected, doneActions, onNavigat
     }
 
     // walk
-    charRef.current.tx = Math.max(14, Math.min(SW - 14, cx));
-    charRef.current.ty = Math.max(105, Math.min(SH - 22, cy));
+    charRef.current.tx = Math.max(20, Math.min(SW - 20, cx));
+    charRef.current.ty = Math.max(HY + 10, Math.min(SH - 30, cy));
   }, [onNavigate, onPickup, onStartCombat, onActionById]);
 
   return (
     <canvas
       ref={canvasRef}
       width={SW} height={SH}
-      style={{ width: '100%', height: 'auto', display: 'block', imageRendering: 'pixelated', cursor: 'crosshair' }}
+      style={{ width: '100%', height: '100%', display: 'block', imageRendering: 'pixelated', cursor: 'crosshair' }}
       onClick={handleClick}
     />
   );
@@ -811,7 +1147,7 @@ const CSS = `
   .stat-num{font-size:.62rem;color:var(--text);min-width:38px;}
   .g-cr{font-size:.7rem;color:var(--amber);flex-shrink:0;}
 
-  .scene-wrap{grid-column:1;grid-row:2;background:#000;border-bottom:1px solid var(--border);overflow:hidden;position:relative;}
+  .scene-wrap{grid-column:1;grid-row:2;background:#000;border-bottom:1px solid var(--border);overflow:hidden;position:relative;aspect-ratio:8/5;max-height:min(55vh,480px);width:100%;}
 
   .elog{grid-column:1;grid-row:3;background:var(--bg);border-bottom:1px solid var(--border);padding:.75rem 1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:.3rem;min-height:0;}
   .ev{font-size:.68rem;line-height:1.8;}
