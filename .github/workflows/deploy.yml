@@ -1,23 +1,11 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to Proisp
 
 on:
   push:
     branches: [main]
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build-and-deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,11 +17,13 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      - uses: actions/configure-pages@v4
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Upload to Proisp via SFTP
+        run: |
+          sudo apt-get install -y lftp
+          lftp -e "
+            set sftp:auto-confirm yes;
+            set net:timeout 20;
+            open sftp://${{ secrets.SFTP_USER }}:${{ secrets.SFTP_PASS }}@${{ secrets.SFTP_HOST }};
+            mirror -R --delete --no-perms ./dist/ /customers/1/4/4/c3gpmol7q/webroots/r1458810/;
+            bye
+          "
