@@ -948,7 +948,7 @@ export default function App() {
   const [combat, setCombat]   = useState(null);
   const [ariaThinking, setAriaThinking] = useState(false);
   const [ariaInput, setAriaInput] = useState('');
-  const [ariaKey, setAriaKey] = useState(() => localStorage.getItem('void-aria-key') || '');
+  const [ariaKey, setAriaKey] = useState(() => { try { return localStorage.getItem('void-aria-key') || ''; } catch { return ''; } });
   const [hasSave, setHasSave] = useState(null);
   const [savedAt, setSavedAt] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
@@ -1361,7 +1361,7 @@ export default function App() {
               <div style={{ fontSize:'.6rem', color:'var(--amber)', background:'var(--adim)', border:'1px solid rgba(255,170,0,.15)', padding:'.45rem .7rem', lineHeight:1.7 }}>
                 ARIA needs an Anthropic API key to respond.{' '}
                 <input placeholder="sk-ant-..." style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,170,0,.4)', color:'var(--amber)', fontFamily:'Space Mono,monospace', fontSize:'.6rem', outline:'none', width:'160px', padding:'.1rem .2rem' }}
-                  onChange={e => { const k = e.target.value.trim(); setAriaKey(k); localStorage.setItem('void-aria-key', k); }} />
+                  onChange={e => { const k = e.target.value.trim(); setAriaKey(k); try { localStorage.setItem('void-aria-key', k); } catch {} }} />
               </div>
             )}
             <div className="aria-row">
