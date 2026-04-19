@@ -948,6 +948,7 @@ export default function App() {
   const [combat, setCombat]   = useState(null);
   const [ariaThinking, setAriaThinking] = useState(false);
   const [ariaInput, setAriaInput] = useState('');
+  const [ariaKey, setAriaKey] = useState(() => localStorage.getItem('void-aria-key') || '');
   const [hasSave, setHasSave] = useState(null);
   const [savedAt, setSavedAt] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
@@ -1120,13 +1121,13 @@ export default function App() {
     const sysprompt = ARIA_PROMPT(aria.memoryLevel, aria.trust, activeImpl);
     const msgs = [...aria.chatHistory.map(m => ({ role: m.role === 'aria' ? 'assistant' : 'user', content: m.text })), { role: 'user', content: msg }];
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:sysprompt, messages:msgs }) });
+      const res = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'Content-Type':'application/json','x-api-key':ariaKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}, body: JSON.stringify({ model:'claude-sonnet-4-5-20251001', max_tokens:1000, system:sysprompt, messages:msgs }) });
       const data = await res.json();
       const reply = data.content?.[0]?.text || '[ERROR — signal lost]';
       setAria(a => ({ ...a, chatHistory: [...a.chatHistory, { role:'aria', text:reply }], trust: Math.min(100, a.trust + 2) }));
     } catch { setAria(a => ({ ...a, chatHistory: [...a.chatHistory, { role:'aria', text:'[ERROR — connection interrupted]' }] })); }
     finally { setAriaThinking(false); }
-  }, [ariaInput, ariaThinking, aria, implants]);
+  }, [ariaInput, ariaKey, ariaThinking, aria, implants]);
 
   const unlockImpl = useCallback((id) => {
     const impl = IMPLANTS[id]; if (!impl || implants[id]) return;
@@ -1355,10 +1356,17 @@ export default function App() {
               {ariaThinking && <div className="aria-thinking">ARIA processing...</div>}
             </div>
           </div>
-          <div className="mo-f" style={{ flexDirection:'column' }}>
+          <div className="mo-f" style={{ flexDirection:'column', gap:'.4rem' }}>
+            {!ariaKey && (
+              <div style={{ fontSize:'.6rem', color:'var(--amber)', background:'var(--adim)', border:'1px solid rgba(255,170,0,.15)', padding:'.45rem .7rem', lineHeight:1.7 }}>
+                ARIA needs an Anthropic API key to respond.{' '}
+                <input placeholder="sk-ant-..." style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,170,0,.4)', color:'var(--amber)', fontFamily:'Space Mono,monospace', fontSize:'.6rem', outline:'none', width:'160px', padding:'.1rem .2rem' }}
+                  onChange={e => { const k = e.target.value.trim(); setAriaKey(k); localStorage.setItem('void-aria-key', k); }} />
+              </div>
+            )}
             <div className="aria-row">
-              <input className="aria-inp" placeholder="Say something..." value={ariaInput} onChange={e => setAriaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAria()} disabled={ariaThinking} autoFocus />
-              <button className="aria-send" onClick={sendAria} disabled={ariaThinking}>SEND</button>
+              <input className="aria-inp" placeholder="Say something..." value={ariaInput} onChange={e => setAriaInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && sendAria()} disabled={ariaThinking || !ariaKey} autoFocus />
+              <button className="aria-send" onClick={sendAria} disabled={ariaThinking || !ariaKey}>SEND</button>
             </div>
           </div>
         </div></div>
